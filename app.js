@@ -31,6 +31,17 @@ addForm.addEventListener('submit', async (e) => {
         return;
     }
     
+    // 文字数チェック
+    if (dishName.length > 10) {
+        alert('料理名は10文字以内で入力してください');
+        return;
+    }
+    
+    if (dishOrigin.length > 30) {
+        alert('由来は30文字以内で入力してください');
+        return;
+    }
+    
     try {
         // Firestoreに追加
         await addDoc(collection(db, DISHES_COLLECTION), {
