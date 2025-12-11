@@ -2,7 +2,10 @@ import { db } from './firebase-config.js';
 import { 
     collection, 
     addDoc, 
-    getDocs, 
+    getDocs,
+    doc,
+    deleteDoc,
+    getDoc,
     serverTimestamp 
 } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
@@ -18,6 +21,11 @@ const gachaCountInput = document.getElementById('gacha-count');
 const gachaResult = document.getElementById('gacha-result');
 const viewAllBtn = document.getElementById('view-all-btn');
 const allDishesDiv = document.getElementById('all-dishes');
+const viewMyPostsBtn = document.getElementById('view-my-posts-btn');
+const myPostsDiv = document.getElementById('my-posts');
+
+// LocalStorageのキー
+const MY_POSTS_KEY = 'osechiGacha_myPosts';
 
 // ①中身の追加機能
 addForm.addEventListener('submit', async (e) => {
@@ -44,11 +52,14 @@ addForm.addEventListener('submit', async (e) => {
     
     try {
         // Firestoreに追加
-        await addDoc(collection(db, DISHES_COLLECTION), {
+        const docRef = await addDoc(collection(db, DISHES_COLLECTION), {
             name: dishName,
             origin: dishOrigin,
             createdAt: serverTimestamp()
         });
+        
+        // LocalStorageに自分の投稿IDを保存
+        saveMyPost(docRef.id, dishName, dishOrigin);
         
         alert('✅ プールに追加しました！');
         
@@ -147,6 +158,104 @@ function displayDishes(container, dishes, title) {
     
     container.innerHTML = html;
 }
+
+// ④自分の投稿を表示
+viewMyPostsBtn.addEventListener('click', async () => {
+    try {
+        myPostsDiv.innerHTML = '<p class="loading">読み込み中...</p>';
+        
+        const myPosts = getMyPosts();
+        
+        if (myPosts.length === 0) {
+            myPostsDiv.innerHTML = '<p class="empty-message">まだ投稿していません。</p>';
+            return;
+        }
+        
+        // Firestoreから実際のデータを取得
+        const dishes = [];
+        for (const postId of myPosts) {
+            const docRef = doc(db, DISHES_COLLECTION, postId);
+            const docSnap = await getDoc(docRef);
+            
+            if (docSnap.exists()) {
+                dishes.push({ id: docSnap.id, ...docSnap.data() });
+            } else {
+                // 削除済みの投稿はLocalStorageから削除
+                removeMyPost(postId);
+            }
+        }
+        
+        if (dishes.length === 0) {
+            myPostsDiv.innerHTML = '<p class="empty-message">投稿が見つかりませんでした。</p>';
+            return;
+        }
+        
+        // 自分の投稿を表示（削除ボタン付き）
+        displayMyDishes(myPostsDiv, dishes);
+        
+    } catch (error) {
+        console.error('エラー:', error);
+        myPostsDiv.innerHTML = '<p class="empty-message">❌ 取得に失敗しました。</p>';
+    }
+});
+
+// LocalStorage管理関数
+function getMyPosts() {
+    const posts = localStorage.getItem(MY_POSTS_KEY);
+    return posts ? JSON.parse(posts) : [];
+}
+
+function saveMyPost(id, name, origin) {
+    const posts = getMyPosts();
+    posts.push(id);
+    localStorage.setItem(MY_POSTS_KEY, JSON.stringify(posts));
+}
+
+function removeMyPost(id) {
+    const posts = getMyPosts();
+    const filtered = posts.filter(postId => postId !== id);
+    localStorage.setItem(MY_POSTS_KEY, JSON.stringify(filtered));
+}
+
+// 料理削除関数
+async function deleteDish(id, name) {
+    if (!confirm(`「${name}」を削除しますか？`)) {
+        return;
+    }
+    
+    try {
+        await deleteDoc(doc(db, DISHES_COLLECTION, id));
+        removeMyPost(id);
+        alert('✅ 削除しました！');
+        
+        // 再読み込み
+        viewMyPostsBtn.click();
+        
+    } catch (error) {
+        console.error('エラー:', error);
+        alert('❌ 削除に失敗しました。');
+    }
+}
+
+// 自分の投稿を表示するヘルパー関数
+function displayMyDishes(container, dishes) {
+    let html = `<h3 style="margin-bottom: 15px; color: #667eea;">全 ${dishes.length} 品</h3>`;
+    
+    dishes.forEach((dish, index) => {
+        html += `
+            <div class="dish-item" style="animation-delay: ${index * 0.1}s; position: relative;">
+                <h3>${dish.name}</h3>
+                <p>${dish.origin}</p>
+                <button class="btn-delete" onclick="deleteDish('${dish.id}', '${dish.name.replace(/'/g, "\\'")}')">🗑️ 削除</button>
+            </div>
+        `;
+    });
+    
+    container.innerHTML = html;
+}
+
+// グローバルスコープに削除関数を公開
+window.deleteDish = deleteDish;
 
 // 初期化メッセージ
 console.log('🎍 おせちガチャアプリが起動しました！');

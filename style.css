@@ -134,6 +134,38 @@ main {
     box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
 }
 
+.btn-quaternary {
+    background: #ff9a9e;
+    color: white;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.btn-quaternary:hover {
+    background: #ff7a7f;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 154, 158, 0.4);
+}
+
+.btn-delete {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #ff4d4f;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 10px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-delete:hover {
+    background: #ff7875;
+    transform: scale(1.05);
+}
+
 .gacha-result {
     margin-top: 20px;
 }
@@ -161,7 +193,8 @@ main {
     line-height: 1.6;
 }
 
-.all-dishes {
+.all-dishes,
+.my-posts {
     max-height: 500px;
     overflow-y: auto;
 }
