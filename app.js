@@ -27,6 +27,10 @@ const myPostsDiv = document.getElementById('my-posts');
 // LocalStorageのキー
 const MY_POSTS_KEY = 'osechiGacha_myPosts';
 
+// デバッグ: 要素が取得できているか確認
+console.log('viewMyPostsBtn:', viewMyPostsBtn);
+console.log('myPostsDiv:', myPostsDiv);
+
 // ①中身の追加機能
 addForm.addEventListener('submit', async (e) => {
     e.preventDefault();
