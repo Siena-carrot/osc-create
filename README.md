@@ -31,67 +31,90 @@
 
 ## 🚀 セットアップ手順
 
-### 1. Firebaseプロジェクトの作成
+### 1. Firebase（データベース）の設定
+
+#### 1-1. Firebaseプロジェクトの作成
 
 1. [Firebase Console](https://console.firebase.google.com/) にアクセス
 2. 「プロジェクトを追加」をクリック
 3. プロジェクト名を入力（例：osechi-gacha）
-4. Googleアナリティクスは任意で設定
-5. プロジェクトを作成
+4. Googleアナリティクスは不要（スキップ可）
+5. 「プロジェクトを作成」をクリック
 
-### 2. Firestoreデータベースの設定
+#### 1-2. Firestoreデータベースの有効化
 
-1. Firebaseコンソールで「Firestore Database」を選択
+1. 左サイドバーの「Firestore Database」を選択
 2. 「データベースを作成」をクリック
-3. セキュリティルールで「テストモードで開始」を選択（開発時）
-   - **注意**: 本番環境では適切なセキュリティルールを設定してください
-4. ロケーションを選択（asia-northeast1 を推奨）
-5. 「有効にする」をクリック
+3. ロケーション：**asia-northeast1（東京）** を選択
+4. 「次へ」をクリック
+5. セキュリティルール：**テストモードで開始**を選択
+6. 「作成」をクリック
 
-### 3. Webアプリの設定
+#### 1-3. Webアプリの登録
 
-1. Firebaseコンソールのプロジェクト設定に移動
-2. 「全般」タブを選択
-3. 「マイアプリ」セクションで「ウェブ」アイコン（</>）をクリック
-4. アプリのニックネームを入力
-5. 「アプリを登録」をクリック
-6. 表示される設定情報（firebaseConfig）をコピー
+1. プロジェクト概要（歯車アイコン）→「プロジェクトの設定」を開く
+2. 下にスクロールして「マイアプリ」セクションを確認
+3. **ウェブアイコン（</>）** をクリック
+4. アプリのニックネーム：`osechi-gacha-web`（任意）
+5. 「Firebase Hosting」は**チェックしない**
+6. 「アプリを登録」をクリック
+7. 表示される**firebaseConfig**をコピー
 
-### 4. 設定ファイルの編集
+#### 1-4. firebase-config.jsを更新
 
-`firebase-config.js` ファイルを開き、取得した設定情報を貼り付けます：
+`firebase-config.js`を開いて、コピーした設定情報を貼り付け：
 
 ```javascript
 const firebaseConfig = {
-    apiKey: "あなたのAPIキー",
-    authDomain: "あなたのプロジェクトID.firebaseapp.com",
-    projectId: "あなたのプロジェクトID",
-    storageBucket: "あなたのプロジェクトID.appspot.com",
-    messagingSenderId: "あなたのメッセージング送信者ID",
-    appId: "あなたのアプリID"
+    apiKey: "AIzaSy...",              // ← コピーした値
+    authDomain: "xxx.firebaseapp.com",
+    projectId: "xxx",
+    storageBucket: "xxx.appspot.com",
+    messagingSenderId: "123456789",
+    appId: "1:123456789:web:..."
 };
 ```
 
-### 5. アプリの起動
+#### 1-5. セキュリティルールの設定
 
-1. ローカルサーバーを起動（推奨）:
-   ```bash
-   # Python 3の場合
-   python -m http.server 8000
-   
-   # Node.jsのlive-serverを使う場合
-   npx live-server
-   ```
+1. Firestore Database → **ルール**タブ
+2. 以下のルールに変更：
 
-2. ブラウザで開く:
-   ```
-   http://localhost:8000
-   ```
+```javascript
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /dishes/{dishId} {
+      allow read: if true;
+      allow create: if request.resource.data.name.size() <= 10
+                   && request.resource.data.origin.size() <= 30
+                   && request.resource.data.keys().hasAll(['name', 'origin', 'createdAt']);
+      allow delete: if false;
+    }
+  }
+}
+```
 
-### 6. EmailJSの設定（削除申請機能用）
+3. 「公開」をクリック
 
-削除申請機能を有効にするには、EmailJSの設定が必要です。
-詳細は [EMAILJS_SETUP.md](EMAILJS_SETUP.md) を参照してください。
+### 2. ローカルテスト
+
+ローカルサーバーを起動してテスト：
+
+```bash
+# Python 3の場合
+python -m http.server 8000
+
+# Node.jsのlive-serverを使う場合
+npx live-server
+```
+
+ブラウザで開く：`http://localhost:8000`
+
+### 3. EmailJSの設定（削除申請機能用・オプション）
+
+削除申請機能を有効にする場合のみ設定してください。
+詳細は [EMAILJS_SETUP.md](EMAILJS_SETUP.md) を参照。
 
 **簡単な手順:**
 1. [EmailJS](https://www.emailjs.com/)でアカウント作成
@@ -99,20 +122,20 @@ const firebaseConfig = {
 3. テンプレートを作成
 4. `app.js`の`EMAILJS_CONFIG`を更新
 
-## 🌐 GitHub Pagesでの公開
+### 4. GitHub Pagesでの公開
 
-### 1. GitHubにプッシュ
+#### 4-1. GitHubにプッシュ
 
 ```bash
 # 変更をコミット
 git add .
-git commit -m "Initial commit: おせちガチャアプリ"
+git commit -m "Update: Firebase設定を更新"
 
 # GitHubにプッシュ
 git push origin main
 ```
 
-### 2. GitHub Pagesを有効化
+#### 4-2. GitHub Pagesを有効化
 
 1. GitHubリポジトリページ（https://github.com/Siena-carrot/osc-create）にアクセス
 2. `Settings` タブをクリック

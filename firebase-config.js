@@ -4,12 +4,12 @@ import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.1/firebase
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyBQziXa7iqh88TnpmvcP-YlD1nttoU_6Nw",
-  authDomain: "osc-create-db.firebaseapp.com",
-  projectId: "osc-create-db",
-  storageBucket: "osc-create-db.firebasestorage.app",
-  messagingSenderId: "144652442444",
-  appId: "1:144652442444:web:9a69b0eaf35629cf1bcde9"
+  apiKey: "AIzaSyD4FU7ut01PC4lYdJz__MbsWwyZskMo7cQ",
+  authDomain: "osc-create-db-db584.firebaseapp.com",
+  projectId: "osc-create-db-db584",
+  storageBucket: "osc-create-db-db584.firebasestorage.app",
+  messagingSenderId: "156584096190",
+  appId: "1:156584096190:web:489b231e9cc3d0f7a209ef"
 };
 
 // Initialize Firebase

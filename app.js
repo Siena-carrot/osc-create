@@ -242,7 +242,7 @@ async function requestDelete(id, name, origin) {
             dish_name: name,
             dish_origin: origin,
             dish_id: id,
-            delete_url: `https://console.firebase.google.com/project/osc-create-db/firestore/data/~2Fdishes~2F${id}`
+            delete_url: `https://console.firebase.google.com/project/osc-create-db-db584/firestore/data/~2Fdishes~2F${id}`
         };
         
         await emailjs.send(
