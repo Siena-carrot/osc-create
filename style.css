@@ -226,12 +226,21 @@ main {
     padding: 20px;
 }
 
-footer {
-    text-align: center;
-    color: white;
-    padding: 30px 20px;
-    margin-top: 40px;
-    opacity: 0.8;
+.credit {
+  margin-top: 2rem;
+  text-align: center;
+  color: var(--LightBlack);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.credit a {
+  color: #00ACCE;
+  text-decoration: none;
+}
+
+.credit a:hover {
+  text-decoration: underline;
 }
 
 @keyframes fadeIn {
