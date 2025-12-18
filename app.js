@@ -221,23 +221,42 @@ function removeMyPost(id) {
     localStorage.setItem(MY_POSTS_KEY, JSON.stringify(filtered));
 }
 
-// 料理削除関数
-async function deleteDish(id, name) {
-    if (!confirm(`「${name}」を削除しますか？`)) {
+// EmailJS設定（後で設定してください）
+const EMAILJS_CONFIG = {
+    serviceId: 'service_6xe0v9j',
+    templateId: 'template_an58pdk',
+    publicKey: 'Ox9bq5u_xHC-BT5PP',
+    adminEmail: 'siena0610carrot@gmail.com'
+};
+
+// 削除申請関数
+async function requestDelete(id, name, origin) {
+    if (!confirm(`「${name}」の削除を申請しますか？\n管理者に通知が送信されます。`)) {
         return;
     }
     
     try {
-        await deleteDoc(doc(db, DISHES_COLLECTION, id));
-        removeMyPost(id);
-        alert('✅ 削除しました！');
+        // EmailJSでメール送信
+        const templateParams = {
+            to_email: EMAILJS_CONFIG.adminEmail,
+            dish_name: name,
+            dish_origin: origin,
+            dish_id: id,
+            delete_url: `https://console.firebase.google.com/project/osc-create-db/firestore/data/~2Fdishes~2F${id}`
+        };
         
-        // 再読み込み
-        viewMyPostsBtn.click();
+        await emailjs.send(
+            EMAILJS_CONFIG.serviceId,
+            EMAILJS_CONFIG.templateId,
+            templateParams,
+            EMAILJS_CONFIG.publicKey
+        );
+        
+        alert('✅ 削除申請を送信しました！\n管理者が確認後、削除されます。');
         
     } catch (error) {
         console.error('エラー:', error);
-        alert('❌ 削除に失敗しました。');
+        alert('❌ 削除申請に失敗しました。');
     }
 }
 
@@ -246,11 +265,13 @@ function displayMyDishes(container, dishes) {
     let html = `<h3 style="margin-bottom: 15px; color: #667eea;">全 ${dishes.length} 品</h3>`;
     
     dishes.forEach((dish, index) => {
+        const dishName = dish.name.replace(/'/g, "\\'")
+        const dishOrigin = dish.origin.replace(/'/g, "\\'")
         html += `
             <div class="dish-item" style="animation-delay: ${index * 0.1}s; position: relative;">
                 <h3>${dish.name}</h3>
                 <p>${dish.origin}</p>
-                <button class="btn-delete" onclick="deleteDish('${dish.id}', '${dish.name.replace(/'/g, "\\'")}')">🗑️ 削除</button>
+                <button class="btn-delete" onclick="requestDelete('${dish.id}', '${dishName}', '${dishOrigin}')">📧 削除申請</button>
             </div>
         `;
     });
@@ -258,8 +279,13 @@ function displayMyDishes(container, dishes) {
     container.innerHTML = html;
 }
 
-// グローバルスコープに削除関数を公開
-window.deleteDish = deleteDish;
+// グローバルスコープに削除申請関数を公開
+window.requestDelete = requestDelete;
+
+// EmailJSを初期化（設定後に有効化）
+if (typeof emailjs !== 'undefined' && EMAILJS_CONFIG.publicKey !== 'YOUR_PUBLIC_KEY') {
+    emailjs.init(EMAILJS_CONFIG.publicKey);
+}
 
 // 初期化メッセージ
 console.log('🎍 おせちガチャアプリが起動しました！');

@@ -20,6 +20,15 @@
 ### 3. 📋 全部見る
 - 現在プールにあるすべての料理と由来が閲覧可能
 
+### 4. 📝 自分の投稿
+- 自分が投稿した料理の一覧を表示
+- LocalStorageで管理（同じブラウザのみ）
+
+### 5. 📧 削除申請
+- 自分の投稿から削除申請を送信
+- 管理者のメールに通知が届く
+- セキュリティのため直接削除は不可
+
 ## 🚀 セットアップ手順
 
 ### 1. Firebaseプロジェクトの作成
@@ -78,6 +87,17 @@ const firebaseConfig = {
    ```
    http://localhost:8000
    ```
+
+### 6. EmailJSの設定（削除申請機能用）
+
+削除申請機能を有効にするには、EmailJSの設定が必要です。
+詳細は [EMAILJS_SETUP.md](EMAILJS_SETUP.md) を参照してください。
+
+**簡単な手順:**
+1. [EmailJS](https://www.emailjs.com/)でアカウント作成
+2. Emailサービスを接続
+3. テンプレートを作成
+4. `app.js`の`EMAILJS_CONFIG`を更新
 
 ## 🌐 GitHub Pagesでの公開
 
