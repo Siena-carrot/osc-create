@@ -44,8 +44,8 @@ addForm.addEventListener('submit', async (e) => {
     }
     
     // 文字数チェック
-    if (dishName.length > 10) {
-        alert('料理名は10文字以内で入力してください');
+    if (dishName.length > 15) {
+        alert('料理名は15文字以内で入力してください');
         return;
     }
     
@@ -65,7 +65,7 @@ addForm.addEventListener('submit', async (e) => {
         // LocalStorageに自分の投稿IDを保存
         saveMyPost(docRef.id, dishName, dishOrigin);
         
-        alert('✅ プールに追加しました！');
+        alert('メニューに追加しました！');
         
         // フォームをリセット
         dishNameInput.value = '';
@@ -231,7 +231,7 @@ const EMAILJS_CONFIG = {
 
 // 削除申請関数
 async function requestDelete(id, name, origin) {
-    if (!confirm(`「${name}」の削除を申請しますか？\n管理者に通知が送信されます。`)) {
+    if (!confirm(`「${name}」の削除を申請しますか？`)) {
         return;
     }
     
@@ -252,11 +252,11 @@ async function requestDelete(id, name, origin) {
             EMAILJS_CONFIG.publicKey
         );
         
-        alert('✅ 削除申請を送信しました！\n管理者が確認後、削除されます。');
+        alert('削除申請を送信しました！\n削除までしばらくお待ちください。');
         
     } catch (error) {
         console.error('エラー:', error);
-        alert('❌ 削除申請に失敗しました。');
+        alert('削除申請に失敗しました。');
     }
 }
 
@@ -288,4 +288,4 @@ if (typeof emailjs !== 'undefined' && EMAILJS_CONFIG.publicKey !== 'YOUR_PUBLIC_
 }
 
 // 初期化メッセージ
-console.log('🎍 おせちガチャアプリが起動しました！');
+console.log('おせちガチャが起動しました！');
