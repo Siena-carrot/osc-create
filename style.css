@@ -4,16 +4,28 @@
     box-sizing: border-box;
 }
 
+:root {
+  --LightWhite: #f7f3ec;
+  --LightBlack: #494949;
+  --DarkRed:    #a92d39;
+  --LightRed:   #f4aa9a;
+  --LightPink:  #fdecf2;
+  --LightYellow: #fde497;
+}
+
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    min-height: 100vh;
+    background-color: var(--LightWhite);
+    position: relative; 
+    min-height: 100vh;      
     padding: 20px;
 }
 
 .container {
     max-width: 1200px;
     margin: 0 auto;
+    position: relative;
+    z-index: 1;
 }
 
 header {
@@ -26,12 +38,13 @@ header {
 header h1 {
     font-size: 3rem;
     margin-bottom: 10px;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    color: var(--DarkRed);
 }
 
 .subtitle {
     font-size: 1.2rem;
     opacity: 0.9;
+    color: var(--LightBlack);
 }
 
 main {
@@ -40,20 +53,20 @@ main {
 }
 
 .section {
-    background: white;
+    background-color: var(--LightPink);
     border-radius: 15px;
     padding: 30px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    /* box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); */
 }
 
 .section h2 {
-    color: #667eea;
+    color: var(--LightBlack);
     margin-bottom: 20px;
     font-size: 1.8rem;
 }
 
 .card {
-    background: #f8f9fa;
+    background-color: var(--LightWhite);
     padding: 25px;
     border-radius: 10px;
 }
