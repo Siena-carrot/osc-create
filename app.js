@@ -1,4 +1,4 @@
-import { db } from './firebase-config.js';
+import { db, auth } from './firebase-config.js';
 import { 
     collection, 
     addDoc, 
@@ -8,6 +8,7 @@ import {
     getDoc,
     serverTimestamp 
 } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 
 // コレクション名
 const DISHES_COLLECTION = 'dishes';
@@ -27,6 +28,21 @@ const myPostsDiv = document.getElementById('my-posts');
 // LocalStorageのキー
 const MY_POSTS_KEY = 'osechiGacha_myPosts';
 
+// 現在のユーザー情報
+let currentUser = null;
+let currentUserId = null;
+
+// 認証状態の監視
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        currentUser = user;
+        currentUserId = user.uid;
+        console.log('認証完了 - User ID:', currentUserId);
+    } else {
+        console.log('認証されていません');
+    }
+});
+
 // デバッグ: 要素が取得できているか確認
 console.log('viewMyPostsBtn:', viewMyPostsBtn);
 console.log('myPostsDiv:', myPostsDiv);
@@ -34,6 +50,12 @@ console.log('myPostsDiv:', myPostsDiv);
 // ①中身の追加機能
 addForm.addEventListener('submit', async (e) => {
     e.preventDefault();
+    
+    // 認証状態をチェック
+    if (!currentUser) {
+        alert('読み込み中です。少々お待ちください。');
+        return;
+    }
     
     const dishName = dishNameInput.value.trim();
     const dishOrigin = dishOriginInput.value.trim();
@@ -55,10 +77,11 @@ addForm.addEventListener('submit', async (e) => {
     }
     
     try {
-        // Firestoreに追加
+        // Firestoreに追加（Firebase AuthのUIDを使用）
         const docRef = await addDoc(collection(db, DISHES_COLLECTION), {
             name: dishName,
             origin: dishOrigin,
+            userId: currentUserId,
             createdAt: serverTimestamp()
         });
         
@@ -138,8 +161,8 @@ viewAllBtn.addEventListener('click', async () => {
             return;
         }
         
-        // 全ての料理を表示
-        displayDishes(allDishesDiv, dishes, `全 ${dishes.length} 品`);
+        // 全ての料理を表示（自分の投稿には削除ボタン付き）
+        displayDishesWithDelete(allDishesDiv, dishes, `全 ${dishes.length} 品`);
         
     } catch (error) {
         console.error('エラー:', error);
@@ -229,34 +252,28 @@ const EMAILJS_CONFIG = {
     adminEmail: 'siena0610carrot@gmail.com'
 };
 
-// 削除申請関数
-async function requestDelete(id, name, origin) {
-    if (!confirm(`「${name}」の削除を申請しますか？`)) {
+// 直接削除関数
+async function directDelete(id, name) {
+    if (!confirm(`「${name}」を削除しますか？`)) {
         return;
     }
     
     try {
-        // EmailJSでメール送信
-        const templateParams = {
-            to_email: EMAILJS_CONFIG.adminEmail,
-            dish_name: name,
-            dish_origin: origin,
-            dish_id: id,
-            delete_url: `https://console.firebase.google.com/project/osc-create-db-db584/firestore/data/~2Fdishes~2F${id}`
-        };
+        // Firestoreから削除
+        await deleteDoc(doc(db, DISHES_COLLECTION, id));
         
-        await emailjs.send(
-            EMAILJS_CONFIG.serviceId,
-            EMAILJS_CONFIG.templateId,
-            templateParams,
-            EMAILJS_CONFIG.publicKey
-        );
+        // LocalStorageからも削除
+        removeMyPost(id);
         
-        alert('削除申請を送信しました！\n削除までしばらくお待ちください。');
+        alert('削除しました！');
+        
+        // 表示を更新
+        myPostsDiv.innerHTML = '';
+        allDishesDiv.innerHTML = '';
         
     } catch (error) {
         console.error('エラー:', error);
-        alert('削除申請に失敗しました。');
+        alert('削除に失敗しました。');
     }
 }
 
@@ -266,12 +283,11 @@ function displayMyDishes(container, dishes) {
     
     dishes.forEach((dish, index) => {
         const dishName = dish.name.replace(/'/g, "\\'")
-        const dishOrigin = dish.origin.replace(/'/g, "\\'")
         html += `
             <div class="dish-item" style="animation-delay: ${index * 0.1}s; position: relative;">
                 <h3>${dish.name}</h3>
                 <p>${dish.origin}</p>
-                <button class="btn-delete" onclick="requestDelete('${dish.id}', '${dishName}', '${dishOrigin}')">📧 削除申請</button>
+                <button class="btn-delete" onclick="directDelete('${dish.id}', '${dishName}')">🗑️ 削除</button>
             </div>
         `;
     });
@@ -279,8 +295,28 @@ function displayMyDishes(container, dishes) {
     container.innerHTML = html;
 }
 
-// グローバルスコープに削除申請関数を公開
-window.requestDelete = requestDelete;
+// 全ての料理を表示するヘルパー関数（削除ボタン付き）
+function displayDishesWithDelete(container, dishes, title) {
+    let html = `<h3 style="margin-bottom: 15px; color: #667eea;">${title}</h3>`;
+    
+    dishes.forEach((dish, index) => {
+        const dishName = dish.name.replace(/'/g, "\\'")
+        const isMyPost = dish.userId === currentUserId;
+        
+        html += `
+            <div class="dish-item" style="animation-delay: ${index * 0.1}s; position: relative;">
+                <h3>${dish.name}</h3>
+                <p>${dish.origin}</p>
+                ${isMyPost ? `<button class="btn-delete" onclick="directDelete('${dish.id}', '${dishName}')">🗑️ 削除</button>` : ''}
+            </div>
+        `;
+    });
+    
+    container.innerHTML = html;
+}
+
+// グローバルスコープに削除関数を公開
+window.directDelete = directDelete;
 
 // EmailJSを初期化（設定後に有効化）
 if (typeof emailjs !== 'undefined' && EMAILJS_CONFIG.publicKey !== 'YOUR_PUBLIC_KEY') {
