@@ -96,7 +96,7 @@ addForm.addEventListener('submit', async (e) => {
         
     } catch (error) {
         console.error('エラー:', error);
-        alert('❌ 追加に失敗しました。もう一度お試しください。');
+        alert('追加に失敗しました。もう一度お試しください。');
     }
 });
 
@@ -110,7 +110,7 @@ gachaBtn.addEventListener('click', async () => {
     }
     
     try {
-        gachaResult.innerHTML = '<p class="loading">🎲 ガチャを回しています...</p>';
+        gachaResult.innerHTML = '<p class="loading">ガチャを回しています...</p>';
         
         // Firestoreから全ての料理を取得
         const querySnapshot = await getDocs(collection(db, DISHES_COLLECTION));
@@ -135,12 +135,12 @@ gachaBtn.addEventListener('click', async () => {
         }
         
         // 結果を表示
-        displayDishes(gachaResult, selectedDishes, '🎊 あなたのおせちセット 🎊');
+        displayDishes(gachaResult, selectedDishes, '今年のあなたのおせち');
         gachaResult.classList.add('show');
         
     } catch (error) {
         console.error('エラー:', error);
-        gachaResult.innerHTML = '<p class="empty-message">❌ ガチャに失敗しました。</p>';
+        gachaResult.innerHTML = '<p class="empty-message">ガチャに失敗しました</p>';
     }
 });
 
@@ -157,7 +157,7 @@ viewAllBtn.addEventListener('click', async () => {
         });
         
         if (dishes.length === 0) {
-            allDishesDiv.innerHTML = '<p class="empty-message">まだ料理が登録されていません。</p>';
+            allDishesDiv.innerHTML = '<p class="empty-message">まだ料理が登録されていません</p>';
             return;
         }
         
@@ -166,13 +166,13 @@ viewAllBtn.addEventListener('click', async () => {
         
     } catch (error) {
         console.error('エラー:', error);
-        allDishesDiv.innerHTML = '<p class="empty-message">❌ 取得に失敗しました。</p>';
+        allDishesDiv.innerHTML = '<p class="empty-message">取得に失敗しました</p>';
     }
 });
 
 // 料理を表示するヘルパー関数
 function displayDishes(container, dishes, title) {
-    let html = `<h3 style="margin-bottom: 15px; color: #667eea;">${title}</h3>`;
+    // let html = `<h3 style="margin-bottom: 15px; color: #667eea;">${title}</h3>`;
     
     dishes.forEach((dish, index) => {
         html += `
