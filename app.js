@@ -94,6 +94,15 @@ addForm.addEventListener('submit', async (e) => {
         dishNameInput.value = '';
         dishOriginInput.value = '';
         
+        // トグルが開いている場合は閉じる
+        if (myPostsDiv && myPostsDiv.style.display !== 'none') {
+            myPostsDiv.style.display = 'none';
+            const toggleIcon = myPostsToggle.querySelector('.toggle-icon');
+            if (toggleIcon) {
+                toggleIcon.textContent = '▼';
+            }
+        }
+        
     } catch (error) {
         console.error('エラー:', error);
         alert('追加に失敗しました。もう一度お試しください。');
