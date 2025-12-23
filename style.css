@@ -229,6 +229,10 @@ main {
     line-height: 1.6;
 }
 
+.my-posts .dish-item {
+    border-left: 4px solid var(--LightBlack);
+}
+
 .empty-message {
     text-align: center;
     color: #999;
