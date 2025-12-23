@@ -220,13 +220,15 @@ main {
 }
 
 .dish-item h3 {
-    color: #667eea;
+    color: #494949;
     margin-bottom: 5px;
+    font-size: 1.2em;
 }
 
 .dish-item p {
-    color: #666;
+    color: #494949;
     line-height: 1.6;
+    font-size: 0.8em;
 }
 
 .my-posts .dish-item {
