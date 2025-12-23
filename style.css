@@ -4,18 +4,30 @@
     box-sizing: border-box;
 }
 
+@font-face {
+    font-family: 'SmartFontUI';
+    src: url('assets/fonts/SmartFontUI.otf') format('opentype');
+}
+
 :root {
-  --LightWhite: #f7f3ec;
-  --LightBlack: #494949;
-  --DarkRed:    #a92d39;
-  --LightRed:   #f4aa9a;
-  --LightPink:  #fdecf2;
+  --DarkWhite:   #EDE4D3;
+  --LightWhite:  #f7f3ec;
+  --LightBlack:  #494949;
+  --DarkRed:     #CD4C39;
+  --LightRed:    #f4aa9a;
+  --LightPink:   #fdecf2;
   --LightYellow: #fde497;
+  --DarkBlue:    #75BAA9;
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'SmartFontUI', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: var(--LightWhite);
+    background-image: url('assets/images/background.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
     position: relative; 
     min-height: 100vh;      
     padding: 20px;
@@ -53,7 +65,11 @@ main {
 }
 
 .section {
-    background-color: var(--LightPink);
+    background-color: var(--DarkWhite);
+    background-image: url('assets/images/container_bg.png');
+    background-repeat: repeat;
+    background-position: center;
+    background-size: 80%;
     border-radius: 15px;
     padding: 30px;
     /* box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); */
@@ -66,7 +82,11 @@ main {
 }
 
 .card {
-    background-color: var(--LightWhite);
+    background-color: var(--DarkWhite);
+    background-image: url('assets/images/container_bg.png');
+    background-repeat: repeat;
+    background-position: center;
+    background-size: 80%;
     padding: 25px;
     border-radius: 10px;
 }
@@ -109,8 +129,10 @@ main {
 }
 
 .btn-primary {
-    background: #667eea;
+    background: var(--DarkRed);
     color: white;
+    font-size: 1rem;
+    width: 25%;
 }
 
 .btn-primary:hover {
@@ -120,11 +142,11 @@ main {
 }
 
 .btn-secondary {
-    background: #f093fb;
+    background: var(--DarkBlue);
     color: white;
-    width: 100%;
+    width: 25%;
     padding: 15px;
-    font-size: 1.2rem;
+    font-size: 1rem;
     margin-top: 10px;
 }
 
@@ -150,7 +172,8 @@ main {
 .btn-quaternary {
     background: #ff9a9e;
     color: white;
-    width: 100%;
+    width: 25%;
+    font-size: 1rem;
     margin-bottom: 20px;
 }
 
@@ -188,7 +211,8 @@ main {
 }
 
 .dish-item {
-    background: white;
+    background: var(--DarkWhite) url('assets/images/container_bg.png') repeat center;
+    background-size: 80%;
     padding: 15px;
     margin: 10px 0;
     border-radius: 8px;
