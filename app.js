@@ -194,7 +194,7 @@ viewMyPostsBtn.addEventListener('click', async () => {
         const myPosts = getMyPosts();
         
         if (myPosts.length === 0) {
-            myPostsDiv.innerHTML = '<p class="empty-message">まだ投稿していません。</p>';
+            myPostsDiv.innerHTML = '<p class="empty-message">まだ投稿していません</p>';
             return;
         }
         
@@ -213,7 +213,7 @@ viewMyPostsBtn.addEventListener('click', async () => {
         }
         
         if (dishes.length === 0) {
-            myPostsDiv.innerHTML = '<p class="empty-message">投稿が見つかりませんでした。</p>';
+            myPostsDiv.innerHTML = '<p class="empty-message">投稿が見つかりませんでした</p>';
             return;
         }
         
@@ -222,7 +222,7 @@ viewMyPostsBtn.addEventListener('click', async () => {
         
     } catch (error) {
         console.error('エラー:', error);
-        myPostsDiv.innerHTML = '<p class="empty-message">❌ 取得に失敗しました。</p>';
+        myPostsDiv.innerHTML = '<p class="empty-message">取得に失敗しました</p>';
     }
 });
 
