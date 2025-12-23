@@ -98,7 +98,13 @@ main {
     border: 2px solid #e0e0e0;
     border-radius: 8px;
     font-size: 1rem;
+    font-family: 'SmartFontUI', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     transition: border-color 0.3s;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+    font-family: 'SmartFontUI', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .form-group input:focus,

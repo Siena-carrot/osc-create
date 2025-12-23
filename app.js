@@ -349,7 +349,7 @@ async function directDelete(id, name) {
 
 // 自分の投稿を表示するヘルパー関数
 function displayMyDishes(container, dishes) {
-    let html = `<h3 style="margin-bottom: 15px; color: #494949;">全 ${dishes.length} 品</h3>`;
+    let html = '';
     
     dishes.forEach((dish, index) => {
         const dishName = dish.name.replace(/'/g, "\\'")
