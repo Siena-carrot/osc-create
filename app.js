@@ -94,13 +94,9 @@ addForm.addEventListener('submit', async (e) => {
         dishNameInput.value = '';
         dishOriginInput.value = '';
         
-        // トグルが開いている場合は閉じる
+        // トグルが開いている場合は、過去投稿を再読み込みして更新
         if (myPostsDiv && myPostsDiv.style.display !== 'none') {
-            myPostsDiv.style.display = 'none';
-            const toggleIcon = myPostsToggle.querySelector('.toggle-icon');
-            if (toggleIcon) {
-                toggleIcon.textContent = '▼';
-            }
+            await reloadMyPosts();
         }
         
     } catch (error) {
@@ -284,6 +280,47 @@ function removeMyPost(id) {
     localStorage.setItem(MY_POSTS_KEY, JSON.stringify(filtered));
 }
 
+// 過去投稿を再読み込みする関数
+async function reloadMyPosts() {
+    if (!myPostsDiv) return;
+    
+    try {
+        myPostsDiv.innerHTML = '<p class="loading">読み込み中...</p>';
+        
+        const myPosts = getMyPosts();
+        
+        if (myPosts.length === 0) {
+            myPostsDiv.innerHTML = '<p class="empty-message">まだ投稿していません</p>';
+            return;
+        }
+        
+        // Firestoreから実際のデータを取得
+        const dishes = [];
+        for (const postId of myPosts) {
+            const docRef = doc(db, DISHES_COLLECTION, postId);
+            const docSnap = await getDoc(docRef);
+            
+            if (docSnap.exists()) {
+                dishes.push({ id: docSnap.id, ...docSnap.data() });
+            } else {
+                // 削除済みの投稿はLocalStorageから削除
+                removeMyPost(postId);
+            }
+        }
+        
+        if (dishes.length === 0) {
+            myPostsDiv.innerHTML = '<p class="empty-message">投稿が見つかりませんでした</p>';
+        } else {
+            // 自分の投稿を表示（削除ボタン付き）
+            displayMyDishes(myPostsDiv, dishes);
+        }
+        
+    } catch (error) {
+        console.error('エラー:', error);
+        myPostsDiv.innerHTML = '<p class="empty-message">取得に失敗しました</p>';
+    }
+}
+
 // 直接削除関数
 async function directDelete(id, name) {
     if (!confirm(`「${name}」を削除しますか？`)) {
@@ -301,23 +338,7 @@ async function directDelete(id, name) {
         
         // 表示を更新（過去投稿が開いている場合のみ）
         if (myPostsDiv && myPostsDiv.style.display !== 'none') {
-            // 再読み込み
-            const myPosts = getMyPosts();
-            if (myPosts.length === 0) {
-                myPostsDiv.innerHTML = '<p class="empty-message">まだ投稿していません</p>';
-            } else {
-                // 残りの投稿を再取得して表示
-                const dishes = [];
-                for (const postId of myPosts) {
-                    const docRef = doc(db, DISHES_COLLECTION, postId);
-                    const docSnap = await getDoc(docRef);
-                    
-                    if (docSnap.exists()) {
-                        dishes.push({ id: docSnap.id, ...docSnap.data() });
-                    }
-                }
-                displayMyDishes(myPostsDiv, dishes);
-            }
+            await reloadMyPosts();
         }
         
     } catch (error) {
