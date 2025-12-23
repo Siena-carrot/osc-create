@@ -275,14 +275,6 @@ function removeMyPost(id) {
     localStorage.setItem(MY_POSTS_KEY, JSON.stringify(filtered));
 }
 
-// EmailJS設定（後で設定してください）
-const EMAILJS_CONFIG = {
-    serviceId: 'service_6xe0v9j',
-    templateId: 'template_an58pdk',
-    publicKey: 'Ox9bq5u_xHC-BT5PP',
-    adminEmail: 'siena0610carrot@gmail.com'
-};
-
 // 直接削除関数
 async function directDelete(id, name) {
     if (!confirm(`「${name}」を削除しますか？`)) {
@@ -298,9 +290,26 @@ async function directDelete(id, name) {
         
         alert('削除しました！');
         
-        // 表示を更新
-        myPostsDiv.innerHTML = '';
-        allDishesDiv.innerHTML = '';
+        // 表示を更新（過去投稿が開いている場合のみ）
+        if (myPostsDiv && myPostsDiv.style.display !== 'none') {
+            // 再読み込み
+            const myPosts = getMyPosts();
+            if (myPosts.length === 0) {
+                myPostsDiv.innerHTML = '<p class="empty-message">まだ投稿していません</p>';
+            } else {
+                // 残りの投稿を再取得して表示
+                const dishes = [];
+                for (const postId of myPosts) {
+                    const docRef = doc(db, DISHES_COLLECTION, postId);
+                    const docSnap = await getDoc(docRef);
+                    
+                    if (docSnap.exists()) {
+                        dishes.push({ id: docSnap.id, ...docSnap.data() });
+                    }
+                }
+                displayMyDishes(myPostsDiv, dishes);
+            }
+        }
         
     } catch (error) {
         console.error('エラー:', error);
@@ -318,27 +327,7 @@ function displayMyDishes(container, dishes) {
             <div class="dish-item" style="animation-delay: ${index * 0.1}s; position: relative;">
                 <h3>${dish.name}</h3>
                 <p>${dish.origin}</p>
-                <button class="btn-delete" onclick="directDelete('${dish.id}', '${dishName}')">🗑️ 削除</button>
-            </div>
-        `;
-    });
-    
-    container.innerHTML = html;
-}
-
-// 全ての料理を表示するヘルパー関数（削除ボタン付き）
-function displayDishesWithDelete(container, dishes, title) {
-    let html = `<h3 style="margin-bottom: 15px; color: #667eea;">${title}</h3>`;
-    
-    dishes.forEach((dish, index) => {
-        const dishName = dish.name.replace(/'/g, "\\'")
-        const isMyPost = dish.userId === currentUserId;
-        
-        html += `
-            <div class="dish-item" style="animation-delay: ${index * 0.1}s; position: relative;">
-                <h3>${dish.name}</h3>
-                <p>${dish.origin}</p>
-                ${isMyPost ? `<button class="btn-delete" onclick="directDelete('${dish.id}', '${dishName}')">削除</button>` : ''}
+                <button class="btn-delete" onclick="directDelete('${dish.id}', '${dishName}')">削除</button>
             </div>
         `;
     });
@@ -348,11 +337,6 @@ function displayDishesWithDelete(container, dishes, title) {
 
 // グローバルスコープに削除関数を公開
 window.directDelete = directDelete;
-
-// EmailJSを初期化（設定後に有効化）
-if (typeof emailjs !== 'undefined' && EMAILJS_CONFIG.publicKey !== 'YOUR_PUBLIC_KEY') {
-    emailjs.init(EMAILJS_CONFIG.publicKey);
-}
 
 // 初期化メッセージ
 console.log('おせちガチャが起動しました！');
