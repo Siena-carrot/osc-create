@@ -172,7 +172,7 @@ viewAllBtn.addEventListener('click', async () => {
 
 // 料理を表示するヘルパー関数
 function displayDishes(container, dishes, title) {
-    // let html = `<h3 style="margin-bottom: 15px; color: #667eea;">${title}</h3>`;
+    let html = `<h3 style="margin-bottom: 15px; color: #667eea;">${title}</h3>`;
     
     dishes.forEach((dish, index) => {
         html += `
