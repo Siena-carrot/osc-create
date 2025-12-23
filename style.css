@@ -13,11 +13,12 @@
   --DarkWhite:   #EDE4D3;
   --LightWhite:  #f7f3ec;
   --LightBlack:  #494949;
-  --DarkRed:     #CD4C39;
+  --Red:         #CD4C39;
+  --DarkRed:     #B13D2D;
   --LightRed:    #f4aa9a;
   --LightPink:   #fdecf2;
   --DarkYellow:  #CAAE7C;
-  --DarkBlue:    #75BAA9;
+  --Blue:        #75BAA9;
 }
 
 body {
@@ -50,7 +51,7 @@ header {
 header h1 {
     font-size: 3rem;
     margin-bottom: 10px;
-    color: var(--DarkRed);
+    color: var(--Red);
 }
 
 .subtitle {
@@ -132,20 +133,20 @@ main {
 }
 
 .btn-primary {
-    background: var(--DarkRed);
+    background: var(--Red);
     color: white;
     font-size: 1rem;
     width: 25%;
 }
 
 .btn-primary:hover {
-    background: #5568d3;
+    background: var(--DarkRed);
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 5px 15px rgba(177, 61, 45, 0.4);
 }
 
 .btn-secondary {
-    background: var(--DarkBlue);
+    background: var(--Blue);
     color: white;
     width: 25%;
     padding: 15px;
@@ -185,6 +186,38 @@ main {
     background: #ff7a7f;
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(255, 154, 158, 0.4);
+}
+
+.my-posts-toggle {
+    margin-top: 30px;
+    padding: 15px 20px;
+    background: var(--DarkWhite);
+    border: 2px solid var(--DarkRed);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-align: center;
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--DarkRed);
+    user-select: none;
+}
+
+.my-posts-toggle:hover {
+    background: var(--LightRed);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(205, 76, 57, 0.3);
+}
+
+.my-posts-toggle .toggle-icon {
+    display: inline-block;
+    transition: transform 0.3s;
+    font-size: 0.9rem;
+}
+
+.my-posts {
+    margin-top: 15px;
+    transition: all 0.3s ease-in-out;
 }
 
 .btn-delete {
