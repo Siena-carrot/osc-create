@@ -89,6 +89,7 @@ main {
     display: block;
     margin-bottom: 8px;
     font-weight: 600;
+    font-size: 1.2em;
     color: var(--LightBlack);
 }
 
@@ -101,6 +102,7 @@ main {
     font-size: 1rem;
     font-family: 'SmartFontUI', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     transition: border-color 0.3s;
+    color: var(--LightBlack);
 }
 
 .form-group input::placeholder,
