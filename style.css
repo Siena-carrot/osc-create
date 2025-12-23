@@ -191,20 +191,21 @@ main {
 .my-posts-toggle {
     margin-top: 30px;
     padding: 15px 20px;
-    background: var(--DarkWhite);
-    border: 2px solid var(--DarkRed);
+    border: 2px solid var(--Red);
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.3s;
     text-align: center;
     font-weight: 600;
     font-size: 1rem;
-    color: var(--DarkRed);
+    color: var(--Red);
     user-select: none;
+    width: 25%;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .my-posts-toggle:hover {
-    background: var(--LightRed);
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(205, 76, 57, 0.3);
 }
