@@ -73,21 +73,9 @@ main {
     background-size: 80%;
     border-radius: 15px;
     padding: 30px;
-    /* box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); */
-}
-
-.section h2 {
-    color: var(--LightBlack);
-    margin-bottom: 20px;
-    font-size: 1.8rem;
 }
 
 .card {
-    background-color: var(--DarkWhite);
-    background-image: url('assets/images/container_bg.png');
-    background-repeat: repeat;
-    background-position: center;
-    background-size: 80%;
     padding: 25px;
     border-radius: 10px;
 }
@@ -160,34 +148,6 @@ main {
     box-shadow: 0 5px 15px rgba(240, 147, 251, 0.4);
 }
 
-.btn-tertiary {
-    background: #4facfe;
-    color: white;
-    width: 100%;
-    margin-bottom: 20px;
-}
-
-.btn-tertiary:hover {
-    background: #3b95e5;
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
-}
-
-.btn-quaternary {
-    background: #ff9a9e;
-    color: white;
-    width: 25%;
-    font-size: 1rem;
-    margin-top: 30px;
-    margin-bottom: 20px;
-}
-
-.btn-quaternary:hover {
-    background: #ff7a7f;
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(255, 154, 158, 0.4);
-}
-
 .my-posts-toggle {
     margin-top: 30px;
     padding: 15px 20px;
@@ -218,6 +178,8 @@ main {
 
 .my-posts {
     margin-top: 15px;
+    max-height: 500px;
+    overflow-y: auto;
     transition: all 0.3s ease-in-out;
 }
 
@@ -265,26 +227,6 @@ main {
 .dish-item p {
     color: #666;
     line-height: 1.6;
-}
-
-.all-dishes,
-.my-posts {
-    max-height: 500px;
-    overflow-y: auto;
-}
-
-.all-dishes::-webkit-scrollbar {
-    width: 8px;
-}
-
-.all-dishes::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 10px;
-}
-
-.all-dishes::-webkit-scrollbar-thumb {
-    background: #667eea;
-    border-radius: 10px;
 }
 
 .empty-message {
