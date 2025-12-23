@@ -44,7 +44,7 @@ onAuthStateChanged(auth, (user) => {
 });
 
 // デバッグ: 要素が取得できているか確認
-console.log('viewMyPostsBtn:', viewMyPostsBtn);
+console.log('myPostsToggle:', myPostsToggle);
 console.log('myPostsDiv:', myPostsDiv);
 
 // ①中身の追加機能
