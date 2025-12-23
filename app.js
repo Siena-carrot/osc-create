@@ -187,50 +187,54 @@ function displayDishes(container, dishes, title) {
 }
 
 // ④自分の投稿を表示
-viewMyPostsBtn.addEventListener('click', async () => {
-    console.log('自分の投稿ボタンがクリックされました');
-    console.log('myPostsDiv:', myPostsDiv);
-    
-    try {
-        myPostsDiv.innerHTML = '<p class="loading">読み込み中...</p>';
+if (viewMyPostsBtn) {
+    viewMyPostsBtn.addEventListener('click', async () => {
+        console.log('自分の投稿ボタンがクリックされました');
+        console.log('myPostsDiv:', myPostsDiv);
         
-        const myPosts = getMyPosts();
-        console.log('LocalStorageの投稿ID:', myPosts);
-        
-        if (myPosts.length === 0) {
-            myPostsDiv.innerHTML = '<p class="empty-message">まだ投稿していません</p>';
-            return;
-        }
-        
-        // Firestoreから実際のデータを取得
-        const dishes = [];
-        for (const postId of myPosts) {
-            const docRef = doc(db, DISHES_COLLECTION, postId);
-            const docSnap = await getDoc(docRef);
+        try {
+            myPostsDiv.innerHTML = '<p class="loading">読み込み中...</p>';
             
-            if (docSnap.exists()) {
-                dishes.push({ id: docSnap.id, ...docSnap.data() });
-            } else {
-                // 削除済みの投稿はLocalStorageから削除
-                removeMyPost(postId);
+            const myPosts = getMyPosts();
+            console.log('LocalStorageの投稿ID:', myPosts);
+            
+            if (myPosts.length === 0) {
+                myPostsDiv.innerHTML = '<p class="empty-message">まだ投稿していません</p>';
+                return;
             }
+            
+            // Firestoreから実際のデータを取得
+            const dishes = [];
+            for (const postId of myPosts) {
+                const docRef = doc(db, DISHES_COLLECTION, postId);
+                const docSnap = await getDoc(docRef);
+                
+                if (docSnap.exists()) {
+                    dishes.push({ id: docSnap.id, ...docSnap.data() });
+                } else {
+                    // 削除済みの投稿はLocalStorageから削除
+                    removeMyPost(postId);
+                }
+            }
+            
+            console.log('取得した投稿:', dishes);
+            
+            if (dishes.length === 0) {
+                myPostsDiv.innerHTML = '<p class="empty-message">投稿が見つかりませんでした</p>';
+                return;
+            }
+            
+            // 自分の投稿を表示（削除ボタン付き）
+            displayMyDishes(myPostsDiv, dishes);
+            
+        } catch (error) {
+            console.error('エラー:', error);
+            myPostsDiv.innerHTML = '<p class="empty-message">取得に失敗しました</p>';
         }
-        
-        console.log('取得した投稿:', dishes);
-        
-        if (dishes.length === 0) {
-            myPostsDiv.innerHTML = '<p class="empty-message">投稿が見つかりませんでした</p>';
-            return;
-        }
-        
-        // 自分の投稿を表示（削除ボタン付き）
-        displayMyDishes(myPostsDiv, dishes);
-        
-    } catch (error) {
-        console.error('エラー:', error);
-        myPostsDiv.innerHTML = '<p class="empty-message">取得に失敗しました</p>';
-    }
-});
+    });
+} else {
+    console.error('viewMyPostsBtn要素が見つかりません');
+}
 
 // LocalStorage管理関数
 function getMyPosts() {
