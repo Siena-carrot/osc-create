@@ -188,10 +188,14 @@ function displayDishes(container, dishes, title) {
 
 // ④自分の投稿を表示
 viewMyPostsBtn.addEventListener('click', async () => {
+    console.log('自分の投稿ボタンがクリックされました');
+    console.log('myPostsDiv:', myPostsDiv);
+    
     try {
         myPostsDiv.innerHTML = '<p class="loading">読み込み中...</p>';
         
         const myPosts = getMyPosts();
+        console.log('LocalStorageの投稿ID:', myPosts);
         
         if (myPosts.length === 0) {
             myPostsDiv.innerHTML = '<p class="empty-message">まだ投稿していません</p>';
@@ -211,6 +215,8 @@ viewMyPostsBtn.addEventListener('click', async () => {
                 removeMyPost(postId);
             }
         }
+        
+        console.log('取得した投稿:', dishes);
         
         if (dishes.length === 0) {
             myPostsDiv.innerHTML = '<p class="empty-message">投稿が見つかりませんでした</p>';
