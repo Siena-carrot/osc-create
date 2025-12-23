@@ -18,7 +18,8 @@
   --LightRed:    #f4aa9a;
   --LightPink:   #fdecf2;
   --DarkYellow:  #CAAE7C;
-  --Blue:        #75BAA9;
+  --Blue:        #5CB1B8;
+  --DarkBlue:    #52959b;
 }
 
 body {
@@ -149,9 +150,9 @@ main {
 }
 
 .btn-secondary:hover {
-    background: #e07ae8;
+    background: var(--DarkBlue);
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(240, 147, 251, 0.4);
+    box-shadow: 0 5px 15px rgba(74, 143, 149, 0.4);
 }
 
 .my-posts-toggle {
@@ -263,7 +264,7 @@ main {
 }
 
 .credit a {
-  color: #00ACCE;
+  color: var(--Blue);
   text-decoration: none;
 }
 
