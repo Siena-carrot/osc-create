@@ -101,7 +101,8 @@ addForm.addEventListener('submit', async (e) => {
 });
 
 // ②ガチャ機能
-gachaBtn.addEventListener('click', async () => {
+if (gachaBtn) {
+    gachaBtn.addEventListener('click', async () => {
     const count = parseInt(gachaCountInput.value);
     
     if (!count || count < 1 || count > 20) {
@@ -142,10 +143,12 @@ gachaBtn.addEventListener('click', async () => {
         console.error('エラー:', error);
         gachaResult.innerHTML = '<p class="empty-message">ガチャに失敗しました</p>';
     }
-});
+    });
+}
 
 // ③全部見る機能
-viewAllBtn.addEventListener('click', async () => {
+if (viewAllBtn) {
+    viewAllBtn.addEventListener('click', async () => {
     try {
         allDishesDiv.innerHTML = '<p class="loading">読み込み中...</p>';
         
@@ -168,7 +171,8 @@ viewAllBtn.addEventListener('click', async () => {
         console.error('エラー:', error);
         allDishesDiv.innerHTML = '<p class="empty-message">取得に失敗しました</p>';
     }
-});
+    });
+}
 
 // 料理を表示するヘルパー関数
 function displayDishes(container, dishes, title) {

@@ -16,7 +16,7 @@
   --DarkRed:     #CD4C39;
   --LightRed:    #f4aa9a;
   --LightPink:   #fdecf2;
-  --LightYellow: #fde497;
+  --DarkYellow:  #CAAE7C;
   --DarkBlue:    #75BAA9;
 }
 
@@ -115,7 +115,7 @@ main {
 .form-group input:focus,
 .form-group textarea:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: var(--DarkYellow);
 }
 
 .btn {
