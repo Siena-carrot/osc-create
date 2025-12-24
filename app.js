@@ -356,11 +356,25 @@ function showSharePopup(dishes) {
         const dishNames = Array.from(dishItems).map(h3 => h3.textContent);
         
         // ツイート文を生成（テンプレートリテラルで実際の改行を使用）
-        const tweetText = `／今年のおせちはこれにします！＼
+        let tweetText = `／
+今年のおせちはこれにします！
+＼
 ${dishNames.join('\n')}
 
 #おせちガチャ
 ${shareUrl}`;
+        
+        // Twitterの文字数制限をチェック（URLは23文字としてカウント）
+        const urlLength = 23;
+        const textWithoutUrl = tweetText.replace(shareUrl, '');
+        const totalLength = textWithoutUrl.length + urlLength;
+        
+        // 280文字を超える場合は最後の2文字を「……」に変更
+        if (totalLength > 280) {
+            const maxLength = 280 - urlLength - 2; // URLと「……」の分を引く
+            const truncatedText = textWithoutUrl.substring(0, maxLength);
+            tweetText = truncatedText + '……\n' + shareUrl;
+        }
         
         // Xの共有URLを生成
         const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
