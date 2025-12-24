@@ -356,9 +356,10 @@ function showSharePopup(dishes) {
         const dishNames = Array.from(dishItems).map(h3 => h3.textContent);
         
         // ツイート文を生成（テンプレートリテラルで実際の改行を使用）
-        const tweetText = `今年のおせちはこれにしました
+        const tweetText = `／今年のおせちはこれにします！＼
 ${dishNames.join('\n')}
 
+#おせちガチャ
 ${shareUrl}`;
         
         // Xの共有URLを生成
