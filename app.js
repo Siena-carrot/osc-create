@@ -378,6 +378,7 @@ function showSharePopup(dishes) {
         let tweetText = `／
 今年のおせちはこれにします！
 ＼
+
 ${dishNames.join('\n')}
 
 #おせちガチャ
