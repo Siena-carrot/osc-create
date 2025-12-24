@@ -463,6 +463,17 @@ main {
     color: white;
 }
 
+/* 赤枠ボタン */
+.action-btn-red {
+    color: var(--Red) !important;
+    border-color: var(--Red) !important;
+}
+
+.action-btn-red:hover {
+    background-color: var(--Red) !important;
+    color: white !important;
+}
+
 /* 共有ポップアップ */
 .share-popup {
     position: fixed;
@@ -508,6 +519,17 @@ main {
     color: var(--Blue);
     border: 2px solid var(--Blue);
     border-radius: 8px;
+/* 赤枠共有ボタン */
+.share-option-btn-red {
+    color: var(--Red) !important;
+    border-color: var(--Red) !important;
+}
+
+.share-option-btn-red:hover {
+    background-color: var(--Red) !important;
+    color: white !important;
+}
+
     cursor: pointer;
     font-family: 'SmartFontUI', sans-serif;
     font-size: 0.95rem;

@@ -226,7 +226,7 @@ function displayDishes(container, dishes, title, isSharedView = false) {
             </div>
             ${!isSharedView ? `
             <div class="gacha-actions">
-                <button class="action-btn" id="save-image-btn">画像として保存</button>
+                <button class="action-btn action-btn-red" id="save-image-btn">画像として保存</button>
                 <button class="action-btn" id="share-btn">共有</button>
                 <button class="action-btn action-btn-gray" id="close-gacha-btn">とじる</button>
             </div>` : `
@@ -367,7 +367,7 @@ function showSharePopup(dishes) {
         <div class="share-popup-content">
             <h3>共有</h3>
             <p class="share-note">ぜひ画像で保存して添付してね</p>
-            <button class="share-option-btn" id="share-x">Xで共有</button>
+            <button class="share-option-btn share-option-btn-red" id="share-x">Xで共有</button>
             <button class="share-option-btn" id="share-copy-link">リンクをコピー</button>
             <button class="share-option-btn" id="share-save-image">画像として保存</button>
             <button class="close-popup-btn" id="close-share-popup">とじる</button>
