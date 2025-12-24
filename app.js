@@ -249,13 +249,43 @@ function setupGachaActionButtons() {
             if (!resultContent) return;
             
             try {
+                // 画像保存用に一時的にスタイルを変更
+                const dishItems = resultContent.querySelectorAll('.dish-item');
+                const originalStyles = [];
+                
+                // 元のスタイルを保存して、画像用スタイルを適用
+                resultContent.style.backgroundImage = 'url(assets/images/container_bg.png)';
+                resultContent.style.backgroundSize = 'cover';
+                resultContent.style.backgroundColor = 'transparent';
+                
+                dishItems.forEach((item) => {
+                    originalStyles.push({
+                        background: item.style.background,
+                        backgroundColor: item.style.backgroundColor
+                    });
+                    item.style.background = 'none';
+                    item.style.backgroundColor = 'transparent';
+                });
+                
                 // html2canvasでキャプチャ
                 const canvas = await html2canvas(resultContent, {
-                    backgroundColor: '#ffffff',
+                    backgroundColor: null,
                     scale: 2,
                     logging: false,
+                    useCORS: true,
+                    allowTaint: true,
                     windowWidth: resultContent.scrollWidth,
                     windowHeight: resultContent.scrollHeight
+                });
+                
+                // スタイルを元に戻す
+                resultContent.style.backgroundImage = '';
+                resultContent.style.backgroundSize = '';
+                resultContent.style.backgroundColor = 'rgba(255, 255, 255, 0.95)';
+                
+                dishItems.forEach((item, index) => {
+                    item.style.background = originalStyles[index].background;
+                    item.style.backgroundColor = originalStyles[index].backgroundColor;
                 });
                 
                 // 余白を追加した新しいcanvasを作成
@@ -265,22 +295,30 @@ function setupGachaActionButtons() {
                 newCanvas.height = canvas.height + (padding * 2);
                 const ctx = newCanvas.getContext('2d');
                 
-                // 背景を白で塗りつぶし
-                ctx.fillStyle = '#ffffff';
-                ctx.fillRect(0, 0, newCanvas.width, newCanvas.height);
+                // 背景画像を読み込んで描画
+                const bgImage = new Image();
+                bgImage.crossOrigin = 'anonymous';
+                bgImage.onload = () => {
+                    // 背景パターンを作成
+                    const pattern = ctx.createPattern(bgImage, 'repeat');
+                    ctx.fillStyle = pattern;
+                    ctx.fillRect(0, 0, newCanvas.width, newCanvas.height);
+                    
+                    // 元の画像を中央に配置
+                    ctx.drawImage(canvas, padding, padding);
+                    
+                    // canvasを画像に変換してダウンロード
+                    newCanvas.toBlob((blob) => {
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `おせちガチャ_${new Date().getTime()}.png`;
+                        a.click();
+                        URL.revokeObjectURL(url);
+                    });
+                };
+                bgImage.src = 'assets/images/container_bg.png';
                 
-                // 元の画像を中央に配置
-                ctx.drawImage(canvas, padding, padding);
-                
-                // canvasを画像に変換してダウンロード
-                newCanvas.toBlob((blob) => {
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `おせちガチャ_${new Date().getTime()}.png`;
-                    a.click();
-                    URL.revokeObjectURL(url);
-                });
             } catch (error) {
                 console.error('画像保存エラー:', error);
                 alert('画像の保存に失敗しました');
