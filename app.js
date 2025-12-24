@@ -327,69 +327,35 @@ function setupGachaActionButtons(dishes) {
                 // モバイルデバイスの判定
                 const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
                 
-                canvas.toBlob((blob) => {
-                    const url = URL.createObjectURL(blob);
-                    
-                    if (isMobile) {
-                        // モバイルの場合は同じページ内にモーダルで画像を表示
-                        const imageModal = document.createElement('div');
-                        imageModal.style.position = 'fixed';
-                        imageModal.style.top = '0';
-                        imageModal.style.left = '0';
-                        imageModal.style.width = '100%';
-                        imageModal.style.height = '100%';
-                        imageModal.style.backgroundColor = 'rgba(0,0,0,0.95)';
-                        imageModal.style.zIndex = '10000';
-                        imageModal.style.display = 'flex';
-                        imageModal.style.flexDirection = 'column';
-                        imageModal.style.alignItems = 'center';
-                        imageModal.style.justifyContent = 'center';
-                        imageModal.style.padding = '20px';
+                if (isMobile) {
+                    // モバイルの場合はShare APIまたはDataURLを使用
+                    canvas.toBlob(async (blob) => {
+                        const file = new File([blob], `おせちガチャ_${new Date().getTime()}.png`, { type: 'image/png' });
                         
-                        // 説明文
-                        const instruction = document.createElement('div');
-                        instruction.textContent = '画像を長押しして保存してください';
-                        instruction.style.color = 'white';
-                        instruction.style.fontSize = '16px';
-                        instruction.style.marginBottom = '20px';
-                        instruction.style.textAlign = 'center';
-                        imageModal.appendChild(instruction);
-                        
-                        // 画像
-                        const img = document.createElement('img');
-                        img.src = url;
-                        img.style.maxWidth = '90%';
-                        img.style.maxHeight = '70%';
-                        img.style.objectFit = 'contain';
-                        imageModal.appendChild(img);
-                        
-                        // 閉じるボタン
-                        const closeBtn = document.createElement('button');
-                        closeBtn.textContent = '✕ とじる';
-                        closeBtn.style.marginTop = '20px';
-                        closeBtn.style.padding = '12px 30px';
-                        closeBtn.style.fontSize = '16px';
-                        closeBtn.style.backgroundColor = '#fff';
-                        closeBtn.style.border = 'none';
-                        closeBtn.style.borderRadius = '8px';
-                        closeBtn.style.cursor = 'pointer';
-                        closeBtn.onclick = () => {
-                            imageModal.remove();
-                            URL.revokeObjectURL(url);
-                        };
-                        imageModal.appendChild(closeBtn);
-                        
-                        // 背景クリックで閉じる
-                        imageModal.onclick = (e) => {
-                            if (e.target === imageModal) {
-                                imageModal.remove();
-                                URL.revokeObjectURL(url);
+                        // Share APIが使える場合
+                        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                            try {
+                                await navigator.share({
+                                    files: [file],
+                                    title: 'おせちガチャ',
+                                    text: '今年のおせち'
+                                });
+                            } catch (error) {
+                                if (error.name !== 'AbortError') {
+                                    console.error('共有エラー:', error);
+                                    // フォールバック: DataURLで表示
+                                    showImageModal(canvas.toDataURL('image/png'));
+                                }
                             }
-                        };
-                        
-                        document.body.appendChild(imageModal);
-                    } else {
-                        // PCの場合は従来通りダウンロード
+                        } else {
+                            // Share APIが使えない場合はDataURLで表示
+                            showImageModal(canvas.toDataURL('image/png'));
+                        }
+                    });
+                } else {
+                    // PCの場合は従来通りダウンロード
+                    canvas.toBlob((blob) => {
+                        const url = URL.createObjectURL(blob);
                         const a = document.createElement('a');
                         a.href = url;
                         a.download = `おせちガチャ_${new Date().getTime()}.png`;
@@ -397,8 +363,68 @@ function setupGachaActionButtons(dishes) {
                         a.click();
                         document.body.removeChild(a);
                         setTimeout(() => URL.revokeObjectURL(url), 100);
-                    }
-                });
+                    });
+                }
+                
+                // モバイル用の画像表示モーダル関数
+                function showImageModal(dataUrl) {
+                    const imageModal = document.createElement('div');
+                    imageModal.style.position = 'fixed';
+                    imageModal.style.top = '0';
+                    imageModal.style.left = '0';
+                    imageModal.style.width = '100%';
+                    imageModal.style.height = '100%';
+                    imageModal.style.backgroundColor = 'rgba(0,0,0,0.95)';
+                    imageModal.style.zIndex = '10000';
+                    imageModal.style.display = 'flex';
+                    imageModal.style.flexDirection = 'column';
+                    imageModal.style.alignItems = 'center';
+                    imageModal.style.justifyContent = 'center';
+                    imageModal.style.padding = '20px';
+                    imageModal.style.boxSizing = 'border-box';
+                    
+                    // 説明文
+                    const instruction = document.createElement('div');
+                    instruction.textContent = '画像を長押しして保存してください';
+                    instruction.style.color = 'white';
+                    instruction.style.fontSize = '16px';
+                    instruction.style.marginBottom = '15px';
+                    instruction.style.textAlign = 'center';
+                    imageModal.appendChild(instruction);
+                    
+                    // 画像
+                    const img = document.createElement('img');
+                    img.src = dataUrl;
+                    img.style.maxWidth = '90%';
+                    img.style.maxHeight = '65%';
+                    img.style.objectFit = 'contain';
+                    img.style.backgroundColor = 'white';
+                    imageModal.appendChild(img);
+                    
+                    // 閉じるボタン
+                    const closeModalBtn = document.createElement('button');
+                    closeModalBtn.textContent = '✕ とじる';
+                    closeModalBtn.style.marginTop = '15px';
+                    closeModalBtn.style.padding = '12px 30px';
+                    closeModalBtn.style.fontSize = '16px';
+                    closeModalBtn.style.backgroundColor = '#fff';
+                    closeModalBtn.style.border = 'none';
+                    closeModalBtn.style.borderRadius = '8px';
+                    closeModalBtn.style.cursor = 'pointer';
+                    closeModalBtn.onclick = () => {
+                        imageModal.remove();
+                    };
+                    imageModal.appendChild(closeModalBtn);
+                    
+                    // 背景クリックで閉じる
+                    imageModal.onclick = (e) => {
+                        if (e.target === imageModal) {
+                            imageModal.remove();
+                        }
+                    };
+                    
+                    document.body.appendChild(imageModal);
+                }
             } catch (error) {
                 console.error('画像保存エラー:', error);
                 alert('画像の保存に失敗しました');
@@ -578,69 +604,35 @@ ${finalShareUrl}`;
             // モバイルデバイスの判定
             const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
             
-            canvas.toBlob((blob) => {
-                const url = URL.createObjectURL(blob);
-                
-                if (isMobile) {
-                    // モバイルの場合は同じページ内にモーダルで画像を表示
-                    const imageModal = document.createElement('div');
-                    imageModal.style.position = 'fixed';
-                    imageModal.style.top = '0';
-                    imageModal.style.left = '0';
-                    imageModal.style.width = '100%';
-                    imageModal.style.height = '100%';
-                    imageModal.style.backgroundColor = 'rgba(0,0,0,0.95)';
-                    imageModal.style.zIndex = '10000';
-                    imageModal.style.display = 'flex';
-                    imageModal.style.flexDirection = 'column';
-                    imageModal.style.alignItems = 'center';
-                    imageModal.style.justifyContent = 'center';
-                    imageModal.style.padding = '20px';
+            if (isMobile) {
+                // モバイルの場合はShare APIまたはDataURLを使用
+                canvas.toBlob(async (blob) => {
+                    const file = new File([blob], `おせちガチャ_${new Date().getTime()}.png`, { type: 'image/png' });
                     
-                    // 説明文
-                    const instruction = document.createElement('div');
-                    instruction.textContent = '画像を長押しして保存してください';
-                    instruction.style.color = 'white';
-                    instruction.style.fontSize = '16px';
-                    instruction.style.marginBottom = '20px';
-                    instruction.style.textAlign = 'center';
-                    imageModal.appendChild(instruction);
-                    
-                    // 画像
-                    const img = document.createElement('img');
-                    img.src = url;
-                    img.style.maxWidth = '90%';
-                    img.style.maxHeight = '70%';
-                    img.style.objectFit = 'contain';
-                    imageModal.appendChild(img);
-                    
-                    // 閉じるボタン
-                    const closeBtn = document.createElement('button');
-                    closeBtn.textContent = '✕ とじる';
-                    closeBtn.style.marginTop = '20px';
-                    closeBtn.style.padding = '12px 30px';
-                    closeBtn.style.fontSize = '16px';
-                    closeBtn.style.backgroundColor = '#fff';
-                    closeBtn.style.border = 'none';
-                    closeBtn.style.borderRadius = '8px';
-                    closeBtn.style.cursor = 'pointer';
-                    closeBtn.onclick = () => {
-                        imageModal.remove();
-                        URL.revokeObjectURL(url);
-                    };
-                    imageModal.appendChild(closeBtn);
-                    
-                    // 背景クリックで閉じる
-                    imageModal.onclick = (e) => {
-                        if (e.target === imageModal) {
-                            imageModal.remove();
-                            URL.revokeObjectURL(url);
+                    // Share APIが使える場合
+                    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                        try {
+                            await navigator.share({
+                                files: [file],
+                                title: 'おせちガチャ',
+                                text: '今年のおせち'
+                            });
+                        } catch (error) {
+                            if (error.name !== 'AbortError') {
+                                console.error('共有エラー:', error);
+                                // フォールバック: DataURLで表示
+                                showImageModalFromShare(canvas.toDataURL('image/png'));
+                            }
                         }
-                    };
-                    
-                    document.body.appendChild(imageModal);
-                } else {
-                    // PCの場合は従来通りダウンロード
+                    } else {
+                        // Share APIが使えない場合はDataURLで表示
+                        showImageModalFromShare(canvas.toDataURL('image/png'));
+                    }
+                });
+            } else {
+                // PCの場合は従来通りダウンロード
+                canvas.toBlob((blob) => {
+                    const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
                     a.download = `おせちガチャ_${new Date().getTime()}.png`;
@@ -648,8 +640,68 @@ ${finalShareUrl}`;
                     a.click();
                     document.body.removeChild(a);
                     setTimeout(() => URL.revokeObjectURL(url), 100);
-                }
-            });
+                });
+            }
+            
+            // モバイル用の画像表示モーダル関数
+            function showImageModalFromShare(dataUrl) {
+                const imageModal = document.createElement('div');
+                imageModal.style.position = 'fixed';
+                imageModal.style.top = '0';
+                imageModal.style.left = '0';
+                imageModal.style.width = '100%';
+                imageModal.style.height = '100%';
+                imageModal.style.backgroundColor = 'rgba(0,0,0,0.95)';
+                imageModal.style.zIndex = '10001';
+                imageModal.style.display = 'flex';
+                imageModal.style.flexDirection = 'column';
+                imageModal.style.alignItems = 'center';
+                imageModal.style.justifyContent = 'center';
+                imageModal.style.padding = '20px';
+                imageModal.style.boxSizing = 'border-box';
+                
+                // 説明文
+                const instruction = document.createElement('div');
+                instruction.textContent = '画像を長押しして保存してください';
+                instruction.style.color = 'white';
+                instruction.style.fontSize = '16px';
+                instruction.style.marginBottom = '15px';
+                instruction.style.textAlign = 'center';
+                imageModal.appendChild(instruction);
+                
+                // 画像
+                const img = document.createElement('img');
+                img.src = dataUrl;
+                img.style.maxWidth = '90%';
+                img.style.maxHeight = '65%';
+                img.style.objectFit = 'contain';
+                img.style.backgroundColor = 'white';
+                imageModal.appendChild(img);
+                
+                // 閉じるボタン
+                const closeModalBtn = document.createElement('button');
+                closeModalBtn.textContent = '✕ とじる';
+                closeModalBtn.style.marginTop = '15px';
+                closeModalBtn.style.padding = '12px 30px';
+                closeModalBtn.style.fontSize = '16px';
+                closeModalBtn.style.backgroundColor = '#fff';
+                closeModalBtn.style.border = 'none';
+                closeModalBtn.style.borderRadius = '8px';
+                closeModalBtn.style.cursor = 'pointer';
+                closeModalBtn.onclick = () => {
+                    imageModal.remove();
+                };
+                imageModal.appendChild(closeModalBtn);
+                
+                // 背景クリックで閉じる
+                imageModal.onclick = (e) => {
+                    if (e.target === imageModal) {
+                        imageModal.remove();
+                    }
+                };
+                
+                document.body.appendChild(imageModal);
+            }
             
             // 共有ポップアップを閉じる
             popup.remove();
