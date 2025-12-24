@@ -420,9 +420,12 @@ function showSharePopup(dishes) {
     });
     
     // ポップアップ内のボタンにイベントリスナーを追加
-    document.getElementById('share-x').addEventListener('click', async () => {
-        // 共有URLを生成
-        const finalShareUrl = await generateShareUrl(dishes);
+    document.getElementById('share-x').addEventListener('click', () => {
+        // 共有URLが生成されていなければ待機
+        if (!shareUrl) {
+            alert('共有URLを生成中です。少々お待ちください。');
+            return;
+        }
         
         // 現在表示されている料理名を取得
         const dishItems = document.querySelectorAll('.gacha-dish-item h3');
@@ -436,14 +439,14 @@ function showSharePopup(dishes) {
 ${dishNames.join('\n')}
 
 #おせちガチャ
-${finalShareUrl}`;
+${shareUrl}`;
         
         // Twitterの文字数制限をチェック（URLは23文字としてカウント）
         const urlLength = 23;
         const textWithoutUrl = tweetText.replace(shareUrl, '');
         const totalLength = textWithoutUrl.length + urlLength;
         
-        // 280文字を超える場合は最後の2文字を「……」に変更
+        // 280文字を超える場合は調整
         if (totalLength > 280) {
             const maxLength = 280 - urlLength - 2; // URLと「……」の分を引く
             const truncatedText = textWithoutUrl.substring(0, maxLength);
@@ -453,8 +456,8 @@ ${finalShareUrl}`;
         // Xの共有URLを生成
         const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
         
-        // 新しいウィンドウで開く
-        window.open(twitterUrl, '_blank', 'width=550,height=420');
+        // 新しいウィンドウで開く（同期処理なのでブロックされない）
+        window.open(twitterUrl, '_blank');
         
         // ポップアップを閉じる
         popup.remove();
