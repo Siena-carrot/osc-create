@@ -155,7 +155,7 @@ if (gachaBtn) {
         }
         
         // 結果を表示
-        displayDishes(gachaResult, selectedDishes, '今年のおせち');
+        displayDishes(gachaResult, selectedDishes, '～今年のおせち～');
         gachaResult.classList.add('show');
         
     } catch (error) {
