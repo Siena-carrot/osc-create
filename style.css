@@ -489,7 +489,9 @@ main {
 }
 
 .share-popup-content {
-    background-color: white;
+    background-image: url('assets/images/container_bg.png');
+    background-size: cover;
+    background-position: center;
     padding: 30px;
     border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
@@ -519,17 +521,6 @@ main {
     color: var(--Blue);
     border: 2px solid var(--Blue);
     border-radius: 8px;
-/* 赤枠共有ボタン */
-.share-option-btn-red {
-    color: var(--Red) !important;
-    border-color: var(--Red) !important;
-}
-
-.share-option-btn-red:hover {
-    background-color: var(--Red) !important;
-    color: white !important;
-}
-
     cursor: pointer;
     font-family: 'SmartFontUI', sans-serif;
     font-size: 0.95rem;
@@ -539,6 +530,17 @@ main {
 .share-option-btn:hover {
     background-color: var(--Blue);
     color: white;
+}
+
+/* 赤枠共有ボタン */
+.share-option-btn-red {
+    color: var(--Red) !important;
+    border-color: var(--Red) !important;
+}
+
+.share-option-btn-red:hover {
+    background-color: var(--Red) !important;
+    color: white !important;
 }
 
 .close-popup-btn {
