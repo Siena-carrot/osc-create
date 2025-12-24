@@ -180,7 +180,7 @@ if (viewAllBtn) {
 }
 
 // 料理を表示するヘルパー関数
-function displayDishes(container, dishes, title) {
+function displayDishes(container, dishes, title, isSharedView = false) {
     // 既存のポップアップがあれば削除
     const existingPopup = document.getElementById('gacha-result-popup');
     if (existingPopup) {
@@ -194,7 +194,7 @@ function displayDishes(container, dishes, title) {
     
     let html = `
         <div class="gacha-result-popup-content">
-            <button class="close-result-popup" id="close-result-popup">&times;</button>
+            ${!isSharedView ? '<button class="close-result-popup" id="close-result-popup">&times;</button>' : ''}
             <div id="gacha-result-content">
                 <h3 style="margin-bottom: 15px; color: #494949; font-size: 1.5em;">${title}</h3>
     `;
@@ -210,35 +210,45 @@ function displayDishes(container, dishes, title) {
     
     html += `
             </div>
+            ${!isSharedView ? `
             <div class="gacha-actions">
                 <button class="action-btn" id="save-image-btn">画像として保存</button>
                 <button class="action-btn" id="share-btn">共有</button>
                 <button class="action-btn" id="retry-gacha-btn">もういちど回す</button>
-            </div>
+            </div>` : ''}
         </div>
     `;
     
     popup.innerHTML = html;
     document.body.appendChild(popup);
     
-    // 閉じるボタンのイベントリスナー
-    document.getElementById('close-result-popup').addEventListener('click', () => {
-        popup.remove();
-    });
-    
-    // 背景クリックで閉じる
-    popup.addEventListener('click', (e) => {
-        if (e.target === popup) {
+    if (!isSharedView) {
+        // 閉じるボタンのイベントリスナー
+        document.getElementById('close-result-popup').addEventListener('click', () => {
             popup.remove();
-        }
-    });
-    
-    // ボタンのイベントリスナーを設定
-    setupGachaActionButtons();
+        });
+        
+        // 背景クリックで閉じる
+        popup.addEventListener('click', (e) => {
+            if (e.target === popup) {
+                popup.remove();
+            }
+        });
+        
+        // ボタンのイベントリスナーを設定
+        setupGachaActionButtons(dishes);
+    } else {
+        // 共有ビューの場合は背景クリックで閉じる
+        popup.addEventListener('click', (e) => {
+            if (e.target === popup) {
+                popup.remove();
+            }
+        });
+    }
 }
 
 // ガチャアクションボタンのイベントリスナー
-function setupGachaActionButtons() {
+function setupGachaActionButtons(dishes) {
     const saveImageBtn = document.getElementById('save-image-btn');
     const shareBtn = document.getElementById('share-btn');
     const retryGachaBtn = document.getElementById('retry-gacha-btn');
@@ -299,7 +309,7 @@ function setupGachaActionButtons() {
     
     if (shareBtn) {
         shareBtn.addEventListener('click', () => {
-            showSharePopup();
+            showSharePopup(dishes);
         });
     }
     
@@ -317,7 +327,7 @@ function setupGachaActionButtons() {
 }
 
 // 共有ポップアップを表示
-function showSharePopup() {
+function showSharePopup(dishes) {
     // ポップアップが既に存在する場合は削除
     const existingPopup = document.getElementById('share-popup');
     if (existingPopup) {
@@ -338,6 +348,9 @@ function showSharePopup() {
     
     document.body.appendChild(popup);
     
+    // 共有URLを生成
+    const shareUrl = generateShareUrl(dishes);
+    
     // ポップアップ内のボタンにイベントリスナーを追加
     document.getElementById('share-x').addEventListener('click', () => {
         // 現在表示されている料理名を取得
@@ -345,15 +358,12 @@ function showSharePopup() {
         const dishNames = Array.from(dishItems).map(h3 => h3.textContent);
         
         // ツイート文を生成
-        let tweetText = '今年のおせちはこれにしました\\n';
+        let tweetText = '今年のおせちはこれにしました\n';
         dishNames.forEach(name => {
-            tweetText += name + '\\n';
+            tweetText += name + '\n';
         });
-        tweetText += '\\n';
-        
-        // 現在のページURLを追加
-        const pageUrl = window.location.href;
-        tweetText += pageUrl;
+        tweetText += '\n';
+        tweetText += shareUrl;
         
         // Xの共有URLを生成
         const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
@@ -365,8 +375,14 @@ function showSharePopup() {
         popup.remove();
     });
     
-    document.getElementById('share-copy-link').addEventListener('click', () => {
-        alert('リンクをコピー機能は実装予定です');
+    document.getElementById('share-copy-link').addEventListener('click', async () => {
+        try {
+            await navigator.clipboard.writeText(shareUrl);
+            alert('リンクをコピーしました');
+        } catch (error) {
+            console.error('コピーエラー:', error);
+            alert('リンクのコピーに失敗しました');
+        }
     });
     
     document.getElementById('close-share-popup').addEventListener('click', () => {
@@ -380,6 +396,36 @@ function showSharePopup() {
         }
     });
 }
+
+// 共有URLを生成
+function generateShareUrl(dishes) {
+    const dishesData = dishes.map(dish => ({
+        name: dish.name,
+        origin: dish.origin
+    }));
+    const encodedData = btoa(encodeURIComponent(JSON.stringify(dishesData)));
+    const baseUrl = window.location.origin + window.location.pathname;
+    return `${baseUrl}?shared=${encodedData}`;
+}
+
+// ページロード時にURLパラメータをチェック
+function checkSharedResult() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const sharedData = urlParams.get('shared');
+    
+    if (sharedData) {
+        try {
+            const decodedData = JSON.parse(decodeURIComponent(atob(sharedData)));
+            // 共有された結果を表示（ボタンなし）
+            displayDishes(null, decodedData, '今年のおせち', true);
+        } catch (error) {
+            console.error('共有データの読み込みエラー:', error);
+        }
+    }
+}
+
+// ページロード時に実行
+checkSharedResult();
 
 // ④自分の投稿を表示/非表示トグル
 if (myPostsToggle) {
