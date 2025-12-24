@@ -12,6 +12,8 @@ import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/fi
 
 // スプラッシュスクリーン制御
 const splashScreen = document.getElementById('splash-screen');
+const container = document.querySelector('.container');
+
 if (splashScreen) {
     console.log('スプラッシュスクリーン表示中');
     setTimeout(() => {
@@ -20,6 +22,10 @@ if (splashScreen) {
         setTimeout(() => {
             splashScreen.style.display = 'none';
             console.log('スプラッシュスクリーン非表示');
+            // メインコンテンツを表示
+            if (container) {
+                container.classList.add('show');
+            }
         }, 500);
     }, 2000); // 2秒後にフェードアウト開始
 }
