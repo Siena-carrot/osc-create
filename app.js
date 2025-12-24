@@ -432,11 +432,41 @@ ${finalShareUrl}`;
     document.getElementById('share-copy-link').addEventListener('click', async () => {
         try {
             const finalShareUrl = await generateShareUrl(dishes);
-            await navigator.clipboard.writeText(finalShareUrl);
-            alert('リンクをコピーしました');
+            
+            // Clipboard APIが使えるか確認
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                await navigator.clipboard.writeText(finalShareUrl);
+                alert('リンクをコピーしました');
+            } else {
+                // フォールバック: テキストエリアを使用
+                const textarea = document.createElement('textarea');
+                textarea.value = finalShareUrl;
+                textarea.style.position = 'fixed';
+                textarea.style.opacity = '0';
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert('リンクをコピーしました');
+            }
         } catch (error) {
             console.error('コピーエラー:', error);
-            alert('リンクのコピーに失敗しました');
+            // エラー時もフォールバックを試す
+            try {
+                const finalShareUrl = await generateShareUrl(dishes);
+                const textarea = document.createElement('textarea');
+                textarea.value = finalShareUrl;
+                textarea.style.position = 'fixed';
+                textarea.style.opacity = '0';
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert('リンクをコピーしました');
+            } catch (fallbackError) {
+                console.error('フォールバックコピーエラー:', fallbackError);
+                alert('リンクのコピーに失敗しました');
+            }
         }
     });
     
