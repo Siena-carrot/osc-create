@@ -215,9 +215,31 @@ function setupGachaActionButtons() {
     const retryGachaBtn = document.getElementById('retry-gacha-btn');
     
     if (saveImageBtn) {
-        saveImageBtn.addEventListener('click', () => {
-            // 画像として保存機能（後で実装）
-            alert('画像として保存機能は実装予定です');
+        saveImageBtn.addEventListener('click', async () => {
+            const resultContent = document.getElementById('gacha-result-content');
+            if (!resultContent) return;
+            
+            try {
+                // html2canvasでキャプチャ
+                const canvas = await html2canvas(resultContent, {
+                    backgroundColor: '#ffffff',
+                    scale: 2,
+                    logging: false
+                });
+                
+                // canvasを画像に変換してダウンロード
+                canvas.toBlob((blob) => {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `おせちガチャ_${new Date().getTime()}.png`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                });
+            } catch (error) {
+                console.error('画像保存エラー:', error);
+                alert('画像の保存に失敗しました');
+            }
         });
     }
     
