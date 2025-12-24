@@ -338,6 +338,7 @@ function showSharePopup(dishes) {
     popup.innerHTML = `
         <div class="share-popup-content">
             <h3>共有</h3>
+            <p class="share-note">ぜひ画像で保存して添付してね</p>
             <button class="share-option-btn" id="share-x">Xで共有</button>
             <button class="share-option-btn" id="share-copy-link">リンクをコピー</button>
             <button class="close-popup-btn" id="close-share-popup">とじる</button>
