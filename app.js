@@ -331,39 +331,63 @@ function setupGachaActionButtons(dishes) {
                     const url = URL.createObjectURL(blob);
                     
                     if (isMobile) {
-                        // モバイルの場合は新しいタブで画像を開く
-                        const newWindow = window.open();
-                        if (newWindow) {
-                            const img = newWindow.document.createElement('img');
-                            img.src = url;
-                            img.style.width = '100%';
-                            img.style.height = 'auto';
-                            newWindow.document.body.appendChild(img);
-                            newWindow.document.body.style.margin = '0';
-                            newWindow.document.body.style.padding = '0';
-                            
-                            // モバイル用の説明を追加
-                            const instruction = newWindow.document.createElement('div');
-                            instruction.textContent = '画像を長押しして保存してください';
-                            instruction.style.position = 'fixed';
-                            instruction.style.top = '10px';
-                            instruction.style.left = '50%';
-                            instruction.style.transform = 'translateX(-50%)';
-                            instruction.style.backgroundColor = 'rgba(0,0,0,0.7)';
-                            instruction.style.color = 'white';
-                            instruction.style.padding = '10px 20px';
-                            instruction.style.borderRadius = '5px';
-                            instruction.style.fontSize = '14px';
-                            instruction.style.zIndex = '1000';
-                            newWindow.document.body.appendChild(instruction);
-                            
-                            // 3秒後に説明を消す
-                            setTimeout(() => {
-                                instruction.style.display = 'none';
-                            }, 3000);
-                        } else {
-                            alert('ポップアップがブロックされました。ブラウザの設定を確認してください。');
-                        }
+                        // モバイルの場合は同じページ内にモーダルで画像を表示
+                        const imageModal = document.createElement('div');
+                        imageModal.style.position = 'fixed';
+                        imageModal.style.top = '0';
+                        imageModal.style.left = '0';
+                        imageModal.style.width = '100%';
+                        imageModal.style.height = '100%';
+                        imageModal.style.backgroundColor = 'rgba(0,0,0,0.95)';
+                        imageModal.style.zIndex = '10000';
+                        imageModal.style.display = 'flex';
+                        imageModal.style.flexDirection = 'column';
+                        imageModal.style.alignItems = 'center';
+                        imageModal.style.justifyContent = 'center';
+                        imageModal.style.padding = '20px';
+                        
+                        // 説明文
+                        const instruction = document.createElement('div');
+                        instruction.textContent = '画像を長押しして保存してください';
+                        instruction.style.color = 'white';
+                        instruction.style.fontSize = '16px';
+                        instruction.style.marginBottom = '20px';
+                        instruction.style.textAlign = 'center';
+                        imageModal.appendChild(instruction);
+                        
+                        // 画像
+                        const img = document.createElement('img');
+                        img.src = url;
+                        img.style.maxWidth = '90%';
+                        img.style.maxHeight = '70%';
+                        img.style.objectFit = 'contain';
+                        imageModal.appendChild(img);
+                        
+                        // 閉じるボタン
+                        const closeBtn = document.createElement('button');
+                        closeBtn.textContent = '✕ とじる';
+                        closeBtn.style.marginTop = '20px';
+                        closeBtn.style.padding = '12px 30px';
+                        closeBtn.style.fontSize = '16px';
+                        closeBtn.style.backgroundColor = '#fff';
+                        closeBtn.style.border = 'none';
+                        closeBtn.style.borderRadius = '8px';
+                        closeBtn.style.cursor = 'pointer';
+                        closeBtn.onclick = () => {
+                            imageModal.remove();
+                            URL.revokeObjectURL(url);
+                        };
+                        imageModal.appendChild(closeBtn);
+                        
+                        // 背景クリックで閉じる
+                        imageModal.onclick = (e) => {
+                            if (e.target === imageModal) {
+                                imageModal.remove();
+                                URL.revokeObjectURL(url);
+                            }
+                        };
+                        
+                        document.body.appendChild(imageModal);
                     } else {
                         // PCの場合は従来通りダウンロード
                         const a = document.createElement('a');
@@ -558,39 +582,63 @@ ${finalShareUrl}`;
                 const url = URL.createObjectURL(blob);
                 
                 if (isMobile) {
-                    // モバイルの場合は新しいタブで画像を開く
-                    const newWindow = window.open();
-                    if (newWindow) {
-                        const img = newWindow.document.createElement('img');
-                        img.src = url;
-                        img.style.width = '100%';
-                        img.style.height = 'auto';
-                        newWindow.document.body.appendChild(img);
-                        newWindow.document.body.style.margin = '0';
-                        newWindow.document.body.style.padding = '0';
-                        
-                        // モバイル用の説明を追加
-                        const instruction = newWindow.document.createElement('div');
-                        instruction.textContent = '画像を長押しして保存してください';
-                        instruction.style.position = 'fixed';
-                        instruction.style.top = '10px';
-                        instruction.style.left = '50%';
-                        instruction.style.transform = 'translateX(-50%)';
-                        instruction.style.backgroundColor = 'rgba(0,0,0,0.7)';
-                        instruction.style.color = 'white';
-                        instruction.style.padding = '10px 20px';
-                        instruction.style.borderRadius = '5px';
-                        instruction.style.fontSize = '14px';
-                        instruction.style.zIndex = '1000';
-                        newWindow.document.body.appendChild(instruction);
-                        
-                        // 3秒後に説明を消す
-                        setTimeout(() => {
-                            instruction.style.display = 'none';
-                        }, 3000);
-                    } else {
-                        alert('ポップアップがブロックされました。ブラウザの設定を確認してください。');
-                    }
+                    // モバイルの場合は同じページ内にモーダルで画像を表示
+                    const imageModal = document.createElement('div');
+                    imageModal.style.position = 'fixed';
+                    imageModal.style.top = '0';
+                    imageModal.style.left = '0';
+                    imageModal.style.width = '100%';
+                    imageModal.style.height = '100%';
+                    imageModal.style.backgroundColor = 'rgba(0,0,0,0.95)';
+                    imageModal.style.zIndex = '10000';
+                    imageModal.style.display = 'flex';
+                    imageModal.style.flexDirection = 'column';
+                    imageModal.style.alignItems = 'center';
+                    imageModal.style.justifyContent = 'center';
+                    imageModal.style.padding = '20px';
+                    
+                    // 説明文
+                    const instruction = document.createElement('div');
+                    instruction.textContent = '画像を長押しして保存してください';
+                    instruction.style.color = 'white';
+                    instruction.style.fontSize = '16px';
+                    instruction.style.marginBottom = '20px';
+                    instruction.style.textAlign = 'center';
+                    imageModal.appendChild(instruction);
+                    
+                    // 画像
+                    const img = document.createElement('img');
+                    img.src = url;
+                    img.style.maxWidth = '90%';
+                    img.style.maxHeight = '70%';
+                    img.style.objectFit = 'contain';
+                    imageModal.appendChild(img);
+                    
+                    // 閉じるボタン
+                    const closeBtn = document.createElement('button');
+                    closeBtn.textContent = '✕ とじる';
+                    closeBtn.style.marginTop = '20px';
+                    closeBtn.style.padding = '12px 30px';
+                    closeBtn.style.fontSize = '16px';
+                    closeBtn.style.backgroundColor = '#fff';
+                    closeBtn.style.border = 'none';
+                    closeBtn.style.borderRadius = '8px';
+                    closeBtn.style.cursor = 'pointer';
+                    closeBtn.onclick = () => {
+                        imageModal.remove();
+                        URL.revokeObjectURL(url);
+                    };
+                    imageModal.appendChild(closeBtn);
+                    
+                    // 背景クリックで閉じる
+                    imageModal.onclick = (e) => {
+                        if (e.target === imageModal) {
+                            imageModal.remove();
+                            URL.revokeObjectURL(url);
+                        }
+                    };
+                    
+                    document.body.appendChild(imageModal);
                 } else {
                     // PCの場合は従来通りダウンロード
                     const a = document.createElement('a');
