@@ -13,6 +13,7 @@
   --DarkWhite:   #EDE4D3;
   --LightWhite:  #f7f3ec;
   --LightBlack:  #494949;
+  --Gray:        #888;
   --Red:         #CD4C39;
   --DarkRed:     #B13D2D;
   --LightRed:    #f4aa9a;
@@ -462,7 +463,7 @@ main {
     width: 100%;
     padding: 12px;
     margin-top: 10px;
-    background-color: var(--LightBlack);
+    background-color: var(--Gray);
     color: white;
     border: none;
     border-radius: 8px;

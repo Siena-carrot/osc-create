@@ -341,6 +341,7 @@ function showSharePopup(dishes) {
             <p class="share-note">ぜひ画像で保存して添付してね</p>
             <button class="share-option-btn" id="share-x">Xで共有</button>
             <button class="share-option-btn" id="share-copy-link">リンクをコピー</button>
+            <button class="share-option-btn" id="share-save-image">画像として保存</button>
             <button class="close-popup-btn" id="close-share-popup">とじる</button>
         </div>
     `;
@@ -401,6 +402,61 @@ ${finalShareUrl}`;
         } catch (error) {
             console.error('コピーエラー:', error);
             alert('リンクのコピーに失敗しました');
+        }
+    });
+    
+    document.getElementById('share-save-image').addEventListener('click', async () => {
+        const popupContent = document.querySelector('.gacha-result-popup-content');
+        if (!popupContent) return;
+        
+        try {
+            // 閉じるボタンとアクションボタンを一時的に非表示
+            const closeBtn = document.getElementById('close-result-popup');
+            const actionsDiv = document.querySelector('.gacha-actions');
+            const originalMaxHeight = popupContent.style.maxHeight;
+            const originalOverflow = popupContent.style.overflow;
+            
+            closeBtn.style.display = 'none';
+            actionsDiv.style.display = 'none';
+            
+            // スクロールコンテナの制限を一時的に解除
+            popupContent.style.maxHeight = 'none';
+            popupContent.style.overflow = 'visible';
+            
+            // html2canvasでキャプチャ
+            const canvas = await html2canvas(popupContent, {
+                backgroundColor: null,
+                scale: 2,
+                logging: false,
+                useCORS: true,
+                allowTaint: true,
+                scrollY: -window.scrollY,
+                scrollX: -window.scrollX,
+                windowWidth: popupContent.scrollWidth,
+                windowHeight: popupContent.scrollHeight
+            });
+            
+            // スタイルを元に戻す
+            closeBtn.style.display = '';
+            actionsDiv.style.display = '';
+            popupContent.style.maxHeight = originalMaxHeight;
+            popupContent.style.overflow = originalOverflow;
+            
+            // canvasを画像に変換してダウンロード
+            canvas.toBlob((blob) => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `おせちガチャ_${new Date().getTime()}.png`;
+                a.click();
+                URL.revokeObjectURL(url);
+            });
+            
+            // 共有ポップアップを閉じる
+            popup.remove();
+        } catch (error) {
+            console.error('画像保存エラー:', error);
+            alert('画像の保存に失敗しました');
         }
     });
     
