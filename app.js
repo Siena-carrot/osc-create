@@ -10,6 +10,20 @@ import {
 } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 
+// スプラッシュスクリーン制御
+const splashScreen = document.getElementById('splash-screen');
+if (splashScreen) {
+    console.log('スプラッシュスクリーン表示中');
+    setTimeout(() => {
+        console.log('フェードアウト開始');
+        splashScreen.classList.add('fade-out');
+        setTimeout(() => {
+            splashScreen.style.display = 'none';
+            console.log('スプラッシュスクリーン非表示');
+        }, 500);
+    }, 2000); // 2秒後にフェードアウト開始
+}
+
 // コレクション名
 const DISHES_COLLECTION = 'dishes';
 
@@ -229,12 +243,14 @@ function displayDishes(container, dishes, title, isSharedView = false) {
         // 閉じるボタンのイベントリスナー
         document.getElementById('close-result-popup').addEventListener('click', () => {
             popup.remove();
+            gachaResult.innerHTML = '';
         });
         
         // 背景クリックで閉じる
         popup.addEventListener('click', (e) => {
             if (e.target === popup) {
                 popup.remove();
+                gachaResult.innerHTML = '';
             }
         });
         
@@ -331,6 +347,7 @@ function setupGachaActionButtons(dishes) {
             if (popup) {
                 popup.remove();
             }
+            gachaResult.innerHTML = '';
         });
     }
 }
