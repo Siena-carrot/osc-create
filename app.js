@@ -216,7 +216,7 @@ function displayDishes(container, dishes, title, isSharedView = false) {
         <div class="gacha-result-popup-content">
             ${!isSharedView ? '<button class="close-result-popup" id="close-result-popup">&times;</button>' : ''}
             <div id="gacha-result-content">
-                <h3 style="margin-bottom: 30px; color: #494949; font-size: 1.8em;">${title}</h3>
+                <h3 style="margin-bottom: 30px; color: #CD4C39; font-size: 1.8em;">${title}</h3>
     `;
     
     dishes.forEach((dish, index) => {
