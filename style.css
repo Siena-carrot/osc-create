@@ -225,7 +225,9 @@ main {
     padding: 15px;
     margin: 10px 0;
     border-radius: 8px;
-    animation: slideIn 0.3s;
+    animation: slideIn 0.3s forwards;
+    opacity: 1;
+    transform: translateX(0);
 }
 
 .dish-item h3 {
