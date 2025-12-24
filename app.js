@@ -328,7 +328,7 @@ function setupGachaActionButtons(dishes) {
                 const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
                 
                 if (isMobile) {
-                    // モバイルの場合はShare APIまたはDataURLを使用
+                    // モバイルの場合はShare APIを使用
                     canvas.toBlob(async (blob) => {
                         const file = new File([blob], `おせちガチャ_${new Date().getTime()}.png`, { type: 'image/png' });
                         
@@ -343,13 +343,11 @@ function setupGachaActionButtons(dishes) {
                             } catch (error) {
                                 if (error.name !== 'AbortError') {
                                     console.error('共有エラー:', error);
-                                    // フォールバック: DataURLで表示
-                                    showImageModal(canvas.toDataURL('image/png'));
+                                    alert('画像の共有に失敗しました');
                                 }
                             }
                         } else {
-                            // Share APIが使えない場合はDataURLで表示
-                            showImageModal(canvas.toDataURL('image/png'));
+                            alert('お使いのブラウザは画像の共有に対応していません');
                         }
                     });
                 } else {
@@ -364,66 +362,6 @@ function setupGachaActionButtons(dishes) {
                         document.body.removeChild(a);
                         setTimeout(() => URL.revokeObjectURL(url), 100);
                     });
-                }
-                
-                // モバイル用の画像表示モーダル関数
-                function showImageModal(dataUrl) {
-                    const imageModal = document.createElement('div');
-                    imageModal.style.position = 'fixed';
-                    imageModal.style.top = '0';
-                    imageModal.style.left = '0';
-                    imageModal.style.width = '100%';
-                    imageModal.style.height = '100%';
-                    imageModal.style.backgroundColor = 'rgba(0,0,0,0.95)';
-                    imageModal.style.zIndex = '10000';
-                    imageModal.style.display = 'flex';
-                    imageModal.style.flexDirection = 'column';
-                    imageModal.style.alignItems = 'center';
-                    imageModal.style.justifyContent = 'center';
-                    imageModal.style.padding = '20px';
-                    imageModal.style.boxSizing = 'border-box';
-                    
-                    // 説明文
-                    const instruction = document.createElement('div');
-                    instruction.textContent = '画像を長押しして保存してください';
-                    instruction.style.color = 'white';
-                    instruction.style.fontSize = '16px';
-                    instruction.style.marginBottom = '15px';
-                    instruction.style.textAlign = 'center';
-                    imageModal.appendChild(instruction);
-                    
-                    // 画像
-                    const img = document.createElement('img');
-                    img.src = dataUrl;
-                    img.style.maxWidth = '90%';
-                    img.style.maxHeight = '65%';
-                    img.style.objectFit = 'contain';
-                    img.style.backgroundColor = 'white';
-                    imageModal.appendChild(img);
-                    
-                    // 閉じるボタン
-                    const closeModalBtn = document.createElement('button');
-                    closeModalBtn.textContent = '✕ とじる';
-                    closeModalBtn.style.marginTop = '15px';
-                    closeModalBtn.style.padding = '12px 30px';
-                    closeModalBtn.style.fontSize = '16px';
-                    closeModalBtn.style.backgroundColor = '#fff';
-                    closeModalBtn.style.border = 'none';
-                    closeModalBtn.style.borderRadius = '8px';
-                    closeModalBtn.style.cursor = 'pointer';
-                    closeModalBtn.onclick = () => {
-                        imageModal.remove();
-                    };
-                    imageModal.appendChild(closeModalBtn);
-                    
-                    // 背景クリックで閉じる
-                    imageModal.onclick = (e) => {
-                        if (e.target === imageModal) {
-                            imageModal.remove();
-                        }
-                    };
-                    
-                    document.body.appendChild(imageModal);
                 }
             } catch (error) {
                 console.error('画像保存エラー:', error);
@@ -605,7 +543,7 @@ ${finalShareUrl}`;
             const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
             
             if (isMobile) {
-                // モバイルの場合はShare APIまたはDataURLを使用
+                // モバイルの場合はShare APIを使用
                 canvas.toBlob(async (blob) => {
                     const file = new File([blob], `おせちガチャ_${new Date().getTime()}.png`, { type: 'image/png' });
                     
@@ -625,14 +563,12 @@ ${finalShareUrl}`;
                                 popup.remove();
                             } else {
                                 console.error('共有エラー:', error);
-                                // フォールバック: DataURLで表示
-                                showImageModalFromShare(canvas.toDataURL('image/png'));
+                                alert('画像の共有に失敗しました');
                                 popup.remove();
                             }
                         }
                     } else {
-                        // Share APIが使えない場合はDataURLで表示
-                        showImageModalFromShare(canvas.toDataURL('image/png'));
+                        alert('お使いのブラウザは画像の共有に対応していません');
                         popup.remove();
                     }
                 });
@@ -648,66 +584,6 @@ ${finalShareUrl}`;
                     document.body.removeChild(a);
                     setTimeout(() => URL.revokeObjectURL(url), 100);
                 });
-            }
-            
-            // モバイル用の画像表示モーダル関数
-            function showImageModalFromShare(dataUrl) {
-                const imageModal = document.createElement('div');
-                imageModal.style.position = 'fixed';
-                imageModal.style.top = '0';
-                imageModal.style.left = '0';
-                imageModal.style.width = '100%';
-                imageModal.style.height = '100%';
-                imageModal.style.backgroundColor = 'rgba(0,0,0,0.95)';
-                imageModal.style.zIndex = '10001';
-                imageModal.style.display = 'flex';
-                imageModal.style.flexDirection = 'column';
-                imageModal.style.alignItems = 'center';
-                imageModal.style.justifyContent = 'center';
-                imageModal.style.padding = '20px';
-                imageModal.style.boxSizing = 'border-box';
-                
-                // 説明文
-                const instruction = document.createElement('div');
-                instruction.textContent = '画像を長押しして保存してください';
-                instruction.style.color = 'white';
-                instruction.style.fontSize = '16px';
-                instruction.style.marginBottom = '15px';
-                instruction.style.textAlign = 'center';
-                imageModal.appendChild(instruction);
-                
-                // 画像
-                const img = document.createElement('img');
-                img.src = dataUrl;
-                img.style.maxWidth = '90%';
-                img.style.maxHeight = '65%';
-                img.style.objectFit = 'contain';
-                img.style.backgroundColor = 'white';
-                imageModal.appendChild(img);
-                
-                // 閉じるボタン
-                const closeModalBtn = document.createElement('button');
-                closeModalBtn.textContent = '✕ とじる';
-                closeModalBtn.style.marginTop = '15px';
-                closeModalBtn.style.padding = '12px 30px';
-                closeModalBtn.style.fontSize = '16px';
-                closeModalBtn.style.backgroundColor = '#fff';
-                closeModalBtn.style.border = 'none';
-                closeModalBtn.style.borderRadius = '8px';
-                closeModalBtn.style.cursor = 'pointer';
-                closeModalBtn.onclick = () => {
-                    imageModal.remove();
-                };
-                imageModal.appendChild(closeModalBtn);
-                
-                // 背景クリックで閉じる
-                imageModal.onclick = (e) => {
-                    if (e.target === imageModal) {
-                        imageModal.remove();
-                    }
-                };
-                
-                document.body.appendChild(imageModal);
             }
         } catch (error) {
             console.error('画像保存エラー:', error);
