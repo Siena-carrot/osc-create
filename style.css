@@ -316,7 +316,6 @@ main {
 }
 
 .action-btn:hover {
-    background-color: var(--Blue);
     color: white;
 }
 
@@ -365,7 +364,6 @@ main {
 }
 
 .share-option-btn:hover {
-    background-color: var(--Blue);
     color: white;
 }
 
