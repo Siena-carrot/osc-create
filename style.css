@@ -28,7 +28,7 @@
 }
 
 .splash-logo {
-    max-width: 55%;
+    max-width: 75%;
     max-height: 30vh;
     object-fit: contain;
     animation: fadeInScale 1s ease-out;
