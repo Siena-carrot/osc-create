@@ -326,10 +326,30 @@ main {
 }
 
 #gacha-result-content {
-    padding: 20px;
-    background-color: rgba(255, 255, 255, 0.95);
-    border-radius: 8px;
+    padding: 30px;
+    background-color: transparent;
     margin-bottom: 20px;
+}
+
+.gacha-dish-item {
+    margin-bottom: 25px;
+}
+
+.gacha-dish-item:last-child {
+    margin-bottom: 0;
+}
+
+.gacha-dish-item h3 {
+    color: #494949;
+    margin-bottom: 5px;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+.gacha-dish-item p {
+    color: #494949;
+    line-height: 1.6;
+    font-size: 0.9em;
 }
 
 .close-result-popup {
