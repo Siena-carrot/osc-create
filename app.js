@@ -839,21 +839,26 @@ function displayMyDishes(container, dishes) {
     let html = '';
     
     dishes.forEach((dish, index) => {
-        const dishName = dish.name.replace(/'/g, "\\'")
         html += `
             <div class="dish-item" style="animation-delay: ${index * 0.1}s; position: relative;">
                 <h3>${dish.name}</h3>
                 <p>${dish.origin}</p>
-                <button class="btn-delete" onclick="directDelete('${dish.id}', '${dishName}')">削除</button>
+                <button class="btn-delete" data-dish-id="${dish.id}" data-dish-name="${dish.name}">削除</button>
             </div>
         `;
     });
     
     container.innerHTML = html;
+    
+    // 削除ボタンにイベントリスナーを追加
+    container.querySelectorAll('.btn-delete').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const id = btn.getAttribute('data-dish-id');
+            const name = btn.getAttribute('data-dish-name');
+            directDelete(id, name);
+        });
+    });
 }
-
-// グローバルスコープに削除関数を公開
-window.directDelete = directDelete;
 
 // 初期化メッセージ
 console.log('おせちガチャが起動しました！');
