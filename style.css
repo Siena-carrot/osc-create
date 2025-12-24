@@ -18,7 +18,7 @@
   --LightRed:    #f4aa9a;
   --LightPink:   #fdecf2;
   --DarkYellow:  #CAAE7C;
-  --Blue:        #5CB1B8;
+  --Blue:        #35B19F;
   --DarkBlue:    #52959b;
 }
 
@@ -45,8 +45,8 @@ body {
 header {
     text-align: center;
     color: white;
-    margin-bottom: 40px;
-    padding: 30px 20px;
+    margin-bottom: 15px;
+    padding: 0px;
 }
 
 header h1 {
