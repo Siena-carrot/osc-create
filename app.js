@@ -617,16 +617,23 @@ ${finalShareUrl}`;
                                 title: 'おせちガチャ',
                                 text: '今年のおせち'
                             });
+                            // 共有成功後、共有ポップアップを閉じる
+                            popup.remove();
                         } catch (error) {
-                            if (error.name !== 'AbortError') {
+                            if (error.name === 'AbortError') {
+                                // ユーザーがキャンセルした場合も共有ポップアップを閉じる
+                                popup.remove();
+                            } else {
                                 console.error('共有エラー:', error);
                                 // フォールバック: DataURLで表示
                                 showImageModalFromShare(canvas.toDataURL('image/png'));
+                                popup.remove();
                             }
                         }
                     } else {
                         // Share APIが使えない場合はDataURLで表示
                         showImageModalFromShare(canvas.toDataURL('image/png'));
+                        popup.remove();
                     }
                 });
             } else {
@@ -702,9 +709,6 @@ ${finalShareUrl}`;
                 
                 document.body.appendChild(imageModal);
             }
-            
-            // 共有ポップアップを閉じる
-            popup.remove();
         } catch (error) {
             console.error('画像保存エラー:', error);
             alert('画像の保存に失敗しました');
