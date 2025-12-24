@@ -141,7 +141,7 @@ if (gachaBtn) {
         }
         
         // 結果を表示
-        displayDishes(gachaResult, selectedDishes, '今年のあなたのおせち');
+        displayDishes(gachaResult, selectedDishes, '今年のおせち');
         gachaResult.classList.add('show');
         
     } catch (error) {
@@ -181,7 +181,7 @@ if (viewAllBtn) {
 
 // 料理を表示するヘルパー関数
 function displayDishes(container, dishes, title) {
-    let html = `<h3 style="margin-bottom: 15px; color: #494949;">${title}</h3>`;
+    let html = `<h3 style="margin-bottom: 15px; color: #494949; font-size: 1.5em;">${title}</h3>`;
     
     dishes.forEach((dish, index) => {
         html += `
