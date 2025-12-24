@@ -491,16 +491,28 @@ async function generateShareUrl(dishes) {
             origin: dish.origin
         }));
         
+        // 認証状態をチェック
+        if (!currentUser) {
+            console.warn('ユーザーが認証されていないため、長い形式のURLを使用します');
+            const encodedData = btoa(encodeURIComponent(JSON.stringify(dishesData)));
+            const baseUrl = window.location.origin + window.location.pathname;
+            return `${baseUrl}?shared=${encodedData}`;
+        }
+        
         // Firestoreに共有データを保存
+        console.log('共有データを保存中...', dishesData);
         const docRef = await addDoc(collection(db, 'shared_results'), {
             dishes: dishesData,
+            userId: currentUserId,
             createdAt: serverTimestamp()
         });
         
+        console.log('共有データ保存成功:', docRef.id);
         const baseUrl = window.location.origin + window.location.pathname;
         return `${baseUrl}?s=${docRef.id}`;
     } catch (error) {
         console.error('共有URL生成エラー:', error);
+        console.error('エラー詳細:', error.message, error.code);
         // エラー時は従来の方法を使用
         const dishesData = dishes.map(dish => ({
             name: dish.name,
