@@ -214,8 +214,11 @@ function displayDishes(container, dishes, title, isSharedView = false) {
             <div class="gacha-actions">
                 <button class="action-btn" id="save-image-btn">画像として保存</button>
                 <button class="action-btn" id="share-btn">共有</button>
-                <button class="action-btn" id="close-gacha-btn">とじる</button>
-            </div>` : ''}
+                <button class="action-btn action-btn-gray" id="close-gacha-btn">とじる</button>
+            </div>` : `
+            <div class="gacha-actions">
+                <button class="action-btn action-btn-gray" id="close-shared-gacha-btn">とじる</button>
+            </div>`}
         </div>
     `;
     
@@ -244,6 +247,14 @@ function displayDishes(container, dishes, title, isSharedView = false) {
                 popup.remove();
             }
         });
+        
+        // とじるボタンのイベントリスナー
+        const closeSharedBtn = document.getElementById('close-shared-gacha-btn');
+        if (closeSharedBtn) {
+            closeSharedBtn.addEventListener('click', () => {
+                popup.remove();
+            });
+        }
     }
 }
 
