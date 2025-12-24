@@ -294,6 +294,99 @@ main {
     }
 }
 
+/* ガチャアクションボタン */
+.gacha-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+.action-btn {
+    padding: 10px 20px;
+    background-color: transparent;
+    color: var(--Blue);
+    border: 2px solid var(--Blue);
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'SmartFontUI', sans-serif;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+}
+
+.action-btn:hover {
+    background-color: var(--Blue);
+    color: white;
+}
+
+/* 共有ポップアップ */
+.share-popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.share-popup-content {
+    background-color: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    max-width: 300px;
+    width: 90%;
+}
+
+.share-popup-content h3 {
+    margin-bottom: 20px;
+    text-align: center;
+    color: var(--LightBlack);
+}
+
+.share-option-btn {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 10px;
+    background-color: transparent;
+    color: var(--Blue);
+    border: 2px solid var(--Blue);
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'SmartFontUI', sans-serif;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+}
+
+.share-option-btn:hover {
+    background-color: var(--Blue);
+    color: white;
+}
+
+.close-popup-btn {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    background-color: var(--LightBlack);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'SmartFontUI', sans-serif;
+    font-size: 0.95rem;
+}
+
+.close-popup-btn:hover {
+    opacity: 0.8;
+}
+
 @media (max-width: 768px) {
     header h1 {
         font-size: 2rem;

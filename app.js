@@ -181,7 +181,7 @@ if (viewAllBtn) {
 
 // 料理を表示するヘルパー関数
 function displayDishes(container, dishes, title) {
-    let html = `<h3 style="margin-bottom: 15px; color: #494949; font-size: 1.5em;">${title}</h3>`;
+    let html = `<div id="gacha-result-content"><h3 style="margin-bottom: 15px; color: #494949; font-size: 1.5em;">${title}</h3>`;
     
     dishes.forEach((dish, index) => {
         html += `
@@ -192,7 +192,94 @@ function displayDishes(container, dishes, title) {
         `;
     });
     
+    html += `</div>`;
+    
+    html += `
+        <div class="gacha-actions">
+            <button class="action-btn" id="save-image-btn">画像として保存</button>
+            <button class="action-btn" id="share-btn">共有</button>
+            <button class="action-btn" id="retry-gacha-btn">もういちど回す</button>
+        </div>
+    `;
+    
     container.innerHTML = html;
+    
+    // ボタンのイベントリスナーを設定
+    setupGachaActionButtons();
+}
+
+// ガチャアクションボタンのイベントリスナー
+function setupGachaActionButtons() {
+    const saveImageBtn = document.getElementById('save-image-btn');
+    const shareBtn = document.getElementById('share-btn');
+    const retryGachaBtn = document.getElementById('retry-gacha-btn');
+    
+    if (saveImageBtn) {
+        saveImageBtn.addEventListener('click', () => {
+            // 画像として保存機能（後で実装）
+            alert('画像として保存機能は実装予定です');
+        });
+    }
+    
+    if (shareBtn) {
+        shareBtn.addEventListener('click', () => {
+            showSharePopup();
+        });
+    }
+    
+    if (retryGachaBtn) {
+        retryGachaBtn.addEventListener('click', () => {
+            document.getElementById('gacha-btn').click();
+        });
+    }
+}
+
+// 共有ポップアップを表示
+function showSharePopup() {
+    // ポップアップが既に存在する場合は削除
+    const existingPopup = document.getElementById('share-popup');
+    if (existingPopup) {
+        existingPopup.remove();
+    }
+    
+    const popup = document.createElement('div');
+    popup.id = 'share-popup';
+    popup.className = 'share-popup';
+    popup.innerHTML = `
+        <div class="share-popup-content">
+            <h3>共有</h3>
+            <button class="share-option-btn" id="share-x">Xで共有</button>
+            <button class="share-option-btn" id="share-instagram">インスタで共有</button>
+            <button class="share-option-btn" id="share-copy-link">リンクをコピー</button>
+            <button class="close-popup-btn" id="close-share-popup">閉じる</button>
+        </div>
+    `;
+    
+    document.body.appendChild(popup);
+    
+    // ポップアップ内のボタンにイベントリスナーを追加
+    document.getElementById('share-x').addEventListener('click', () => {
+        alert('Xで共有機能は実装予定です');
+    });
+    
+    document.getElementById('share-instagram').addEventListener('click', () => {
+        alert('インスタで共有機能は実装予定です');
+    });
+    
+    document.getElementById('share-copy-link').addEventListener('click', () => {
+        alert('リンクをコピー機能は実装予定です');
+    });
+    
+    document.getElementById('close-share-popup').addEventListener('click', () => {
+        popup.remove();
+    });
+    
+    // 背景クリックで閉じる
+    popup.addEventListener('click', (e) => {
+        if (e.target === popup) {
+            popup.remove();
+        }
+    });
 }
 
 // ④自分の投稿を表示/非表示トグル
