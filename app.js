@@ -324,13 +324,56 @@ function setupGachaActionButtons(dishes) {
                 popupContent.style.overflow = originalOverflow;
                 
                 // canvasを画像に変換してダウンロード
+                // モバイルデバイスの判定
+                const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+                
                 canvas.toBlob((blob) => {
                     const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `おせちガチャ_${new Date().getTime()}.png`;
-                    a.click();
-                    URL.revokeObjectURL(url);
+                    
+                    if (isMobile) {
+                        // モバイルの場合は新しいタブで画像を開く
+                        const newWindow = window.open();
+                        if (newWindow) {
+                            const img = newWindow.document.createElement('img');
+                            img.src = url;
+                            img.style.width = '100%';
+                            img.style.height = 'auto';
+                            newWindow.document.body.appendChild(img);
+                            newWindow.document.body.style.margin = '0';
+                            newWindow.document.body.style.padding = '0';
+                            
+                            // モバイル用の説明を追加
+                            const instruction = newWindow.document.createElement('div');
+                            instruction.textContent = '画像を長押しして保存してください';
+                            instruction.style.position = 'fixed';
+                            instruction.style.top = '10px';
+                            instruction.style.left = '50%';
+                            instruction.style.transform = 'translateX(-50%)';
+                            instruction.style.backgroundColor = 'rgba(0,0,0,0.7)';
+                            instruction.style.color = 'white';
+                            instruction.style.padding = '10px 20px';
+                            instruction.style.borderRadius = '5px';
+                            instruction.style.fontSize = '14px';
+                            instruction.style.zIndex = '1000';
+                            newWindow.document.body.appendChild(instruction);
+                            
+                            // 3秒後に説明を消す
+                            setTimeout(() => {
+                                instruction.style.display = 'none';
+                            }, 3000);
+                        } else {
+                            alert('ポップアップがブロックされました。ブラウザの設定を確認してください。');
+                        }
+                    } else {
+                        // PCの場合は従来通りダウンロード
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `おせちガチャ_${new Date().getTime()}.png`;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        setTimeout(() => URL.revokeObjectURL(url), 100);
+                    }
                 });
             } catch (error) {
                 console.error('画像保存エラー:', error);
@@ -508,13 +551,56 @@ ${finalShareUrl}`;
             popupContent.style.overflow = originalOverflow;
             
             // canvasを画像に変換してダウンロード
+            // モバイルデバイスの判定
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            
             canvas.toBlob((blob) => {
                 const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `おせちガチャ_${new Date().getTime()}.png`;
-                a.click();
-                URL.revokeObjectURL(url);
+                
+                if (isMobile) {
+                    // モバイルの場合は新しいタブで画像を開く
+                    const newWindow = window.open();
+                    if (newWindow) {
+                        const img = newWindow.document.createElement('img');
+                        img.src = url;
+                        img.style.width = '100%';
+                        img.style.height = 'auto';
+                        newWindow.document.body.appendChild(img);
+                        newWindow.document.body.style.margin = '0';
+                        newWindow.document.body.style.padding = '0';
+                        
+                        // モバイル用の説明を追加
+                        const instruction = newWindow.document.createElement('div');
+                        instruction.textContent = '画像を長押しして保存してください';
+                        instruction.style.position = 'fixed';
+                        instruction.style.top = '10px';
+                        instruction.style.left = '50%';
+                        instruction.style.transform = 'translateX(-50%)';
+                        instruction.style.backgroundColor = 'rgba(0,0,0,0.7)';
+                        instruction.style.color = 'white';
+                        instruction.style.padding = '10px 20px';
+                        instruction.style.borderRadius = '5px';
+                        instruction.style.fontSize = '14px';
+                        instruction.style.zIndex = '1000';
+                        newWindow.document.body.appendChild(instruction);
+                        
+                        // 3秒後に説明を消す
+                        setTimeout(() => {
+                            instruction.style.display = 'none';
+                        }, 3000);
+                    } else {
+                        alert('ポップアップがブロックされました。ブラウザの設定を確認してください。');
+                    }
+                } else {
+                    // PCの場合は従来通りダウンロード
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `おせちガチャ_${new Date().getTime()}.png`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    setTimeout(() => URL.revokeObjectURL(url), 100);
+                }
             });
             
             // 共有ポップアップを閉じる
