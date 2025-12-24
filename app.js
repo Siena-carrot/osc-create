@@ -347,11 +347,17 @@ function showSharePopup(dishes) {
     
     document.body.appendChild(popup);
     
-    // 共有URLを生成
-    const shareUrl = generateShareUrl(dishes);
+    // 共有URLを生成（非同期）
+    let shareUrl = '';
+    generateShareUrl(dishes).then(url => {
+        shareUrl = url;
+    });
     
     // ポップアップ内のボタンにイベントリスナーを追加
-    document.getElementById('share-x').addEventListener('click', () => {
+    document.getElementById('share-x').addEventListener('click', async () => {
+        // 共有URLを生成
+        const finalShareUrl = await generateShareUrl(dishes);
+        
         // 現在表示されている料理名を取得
         const dishItems = document.querySelectorAll('.gacha-dish-item h3');
         const dishNames = Array.from(dishItems).map(h3 => h3.textContent);
@@ -363,7 +369,7 @@ function showSharePopup(dishes) {
 ${dishNames.join('\n')}
 
 #おせちガチャ
-${shareUrl}`;
+${finalShareUrl}`;
         
         // Twitterの文字数制限をチェック（URLは23文字としてカウント）
         const urlLength = 23;
@@ -389,7 +395,8 @@ ${shareUrl}`;
     
     document.getElementById('share-copy-link').addEventListener('click', async () => {
         try {
-            await navigator.clipboard.writeText(shareUrl);
+            const finalShareUrl = await generateShareUrl(dishes);
+            await navigator.clipboard.writeText(finalShareUrl);
             alert('リンクをコピーしました');
         } catch (error) {
             console.error('コピーエラー:', error);
@@ -410,25 +417,59 @@ ${shareUrl}`;
 }
 
 // 共有URLを生成
-function generateShareUrl(dishes) {
-    const dishesData = dishes.map(dish => ({
-        name: dish.name,
-        origin: dish.origin
-    }));
-    const encodedData = btoa(encodeURIComponent(JSON.stringify(dishesData)));
-    const baseUrl = window.location.origin + window.location.pathname;
-    return `${baseUrl}?shared=${encodedData}`;
+async function generateShareUrl(dishes) {
+    try {
+        const dishesData = dishes.map(dish => ({
+            name: dish.name,
+            origin: dish.origin
+        }));
+        
+        // Firestoreに共有データを保存
+        const docRef = await addDoc(collection(db, 'shared_results'), {
+            dishes: dishesData,
+            createdAt: serverTimestamp()
+        });
+        
+        const baseUrl = window.location.origin + window.location.pathname;
+        return `${baseUrl}?s=${docRef.id}`;
+    } catch (error) {
+        console.error('共有URL生成エラー:', error);
+        // エラー時は従来の方法を使用
+        const dishesData = dishes.map(dish => ({
+            name: dish.name,
+            origin: dish.origin
+        }));
+        const encodedData = btoa(encodeURIComponent(JSON.stringify(dishesData)));
+        const baseUrl = window.location.origin + window.location.pathname;
+        return `${baseUrl}?shared=${encodedData}`;
+    }
 }
 
 // ページロード時にURLパラメータをチェック
-function checkSharedResult() {
+async function checkSharedResult() {
     const urlParams = new URLSearchParams(window.location.search);
+    const shareId = urlParams.get('s');
     const sharedData = urlParams.get('shared');
     
-    if (sharedData) {
+    if (shareId) {
+        // 短いIDを使用してFirestoreからデータを取得
+        try {
+            const docRef = doc(db, 'shared_results', shareId);
+            const docSnap = await getDoc(docRef);
+            
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                displayDishes(null, data.dishes, '今年のおせち', true);
+            } else {
+                console.error('共有データが見つかりません');
+            }
+        } catch (error) {
+            console.error('共有データの読み込みエラー:', error);
+        }
+    } else if (sharedData) {
+        // 従来の長い形式にも対応（後方互換性）
         try {
             const decodedData = JSON.parse(decodeURIComponent(atob(sharedData)));
-            // 共有された結果を表示（ボタンなし）
             displayDishes(null, decodedData, '今年のおせち', true);
         } catch (error) {
             console.error('共有データの読み込みエラー:', error);
