@@ -331,7 +331,6 @@ function showSharePopup() {
         <div class="share-popup-content">
             <h3>共有</h3>
             <button class="share-option-btn" id="share-x">Xで共有</button>
-            <button class="share-option-btn" id="share-instagram">インスタで共有</button>
             <button class="share-option-btn" id="share-copy-link">リンクをコピー</button>
             <button class="close-popup-btn" id="close-share-popup">閉じる</button>
         </div>
@@ -341,11 +340,29 @@ function showSharePopup() {
     
     // ポップアップ内のボタンにイベントリスナーを追加
     document.getElementById('share-x').addEventListener('click', () => {
-        alert('Xで共有機能は実装予定です');
-    });
-    
-    document.getElementById('share-instagram').addEventListener('click', () => {
-        alert('インスタで共有機能は実装予定です');
+        // 現在表示されている料理名を取得
+        const dishItems = document.querySelectorAll('.gacha-dish-item h3');
+        const dishNames = Array.from(dishItems).map(h3 => h3.textContent);
+        
+        // ツイート文を生成
+        let tweetText = '今年のおせちはこれにしました\\n';
+        dishNames.forEach(name => {
+            tweetText += name + '\\n';
+        });
+        tweetText += '\\n';
+        
+        // 現在のページURLを追加
+        const pageUrl = window.location.href;
+        tweetText += pageUrl;
+        
+        // Xの共有URLを生成
+        const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
+        
+        // 新しいウィンドウで開く
+        window.open(twitterUrl, '_blank', 'width=550,height=420');
+        
+        // ポップアップを閉じる
+        popup.remove();
     });
     
     document.getElementById('share-copy-link').addEventListener('click', () => {
