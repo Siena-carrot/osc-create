@@ -181,7 +181,23 @@ if (viewAllBtn) {
 
 // 料理を表示するヘルパー関数
 function displayDishes(container, dishes, title) {
-    let html = `<div id="gacha-result-content"><h3 style="margin-bottom: 15px; color: #494949; font-size: 1.5em;">${title}</h3>`;
+    // 既存のポップアップがあれば削除
+    const existingPopup = document.getElementById('gacha-result-popup');
+    if (existingPopup) {
+        existingPopup.remove();
+    }
+    
+    // ポップアップを作成
+    const popup = document.createElement('div');
+    popup.id = 'gacha-result-popup';
+    popup.className = 'gacha-result-popup';
+    
+    let html = `
+        <div class="gacha-result-popup-content">
+            <button class="close-result-popup" id="close-result-popup">&times;</button>
+            <div id="gacha-result-content">
+                <h3 style="margin-bottom: 15px; color: #494949; font-size: 1.5em;">${title}</h3>
+    `;
     
     dishes.forEach((dish, index) => {
         html += `
@@ -192,17 +208,30 @@ function displayDishes(container, dishes, title) {
         `;
     });
     
-    html += `</div>`;
-    
     html += `
-        <div class="gacha-actions">
-            <button class="action-btn" id="save-image-btn">画像として保存</button>
-            <button class="action-btn" id="share-btn">共有</button>
-            <button class="action-btn" id="retry-gacha-btn">もういちど回す</button>
+            </div>
+            <div class="gacha-actions">
+                <button class="action-btn" id="save-image-btn">画像として保存</button>
+                <button class="action-btn" id="share-btn">共有</button>
+                <button class="action-btn" id="retry-gacha-btn">もういちど回す</button>
+            </div>
         </div>
     `;
     
-    container.innerHTML = html;
+    popup.innerHTML = html;
+    document.body.appendChild(popup);
+    
+    // 閉じるボタンのイベントリスナー
+    document.getElementById('close-result-popup').addEventListener('click', () => {
+        popup.remove();
+    });
+    
+    // 背景クリックで閉じる
+    popup.addEventListener('click', (e) => {
+        if (e.target === popup) {
+            popup.remove();
+        }
+    });
     
     // ボタンのイベントリスナーを設定
     setupGachaActionButtons();
@@ -224,11 +253,27 @@ function setupGachaActionButtons() {
                 const canvas = await html2canvas(resultContent, {
                     backgroundColor: '#ffffff',
                     scale: 2,
-                    logging: false
+                    logging: false,
+                    windowWidth: resultContent.scrollWidth,
+                    windowHeight: resultContent.scrollHeight
                 });
                 
+                // 余白を追加した新しいcanvasを作成
+                const padding = 40;
+                const newCanvas = document.createElement('canvas');
+                newCanvas.width = canvas.width + (padding * 2);
+                newCanvas.height = canvas.height + (padding * 2);
+                const ctx = newCanvas.getContext('2d');
+                
+                // 背景を白で塗りつぶし
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, newCanvas.width, newCanvas.height);
+                
+                // 元の画像を中央に配置
+                ctx.drawImage(canvas, padding, padding);
+                
                 // canvasを画像に変換してダウンロード
-                canvas.toBlob((blob) => {
+                newCanvas.toBlob((blob) => {
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
@@ -251,6 +296,12 @@ function setupGachaActionButtons() {
     
     if (retryGachaBtn) {
         retryGachaBtn.addEventListener('click', () => {
+            // ポップアップを閉じる
+            const popup = document.getElementById('gacha-result-popup');
+            if (popup) {
+                popup.remove();
+            }
+            // ガチャを回す
             document.getElementById('gacha-btn').click();
         });
     }

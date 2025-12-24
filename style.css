@@ -294,6 +294,65 @@ main {
     }
 }
 
+/* ガチャ結果ポップアップ */
+.gacha-result-popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
+}
+
+.gacha-result-popup-content {
+    background-image: url('assets/images/container_bg.png');
+    background-size: cover;
+    background-position: center;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    max-width: 600px;
+    max-height: 80vh;
+    width: 90%;
+    overflow-y: auto;
+    position: relative;
+}
+
+#gacha-result-content {
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.95);
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.close-result-popup {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: var(--LightBlack);
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+.close-result-popup:hover {
+    color: var(--Red);
+}
+
 /* ガチャアクションボタン */
 .gacha-actions {
     display: flex;
