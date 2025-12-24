@@ -252,21 +252,34 @@ function setupGachaActionButtons() {
                 // 閉じるボタンとアクションボタンを一時的に非表示
                 const closeBtn = document.getElementById('close-result-popup');
                 const actionsDiv = document.querySelector('.gacha-actions');
+                const originalMaxHeight = popupContent.style.maxHeight;
+                const originalOverflow = popupContent.style.overflow;
+                
                 closeBtn.style.display = 'none';
                 actionsDiv.style.display = 'none';
                 
-                // html2canvasでキャプチャ
+                // スクロールコンテナの制限を一時的に解除
+                popupContent.style.maxHeight = 'none';
+                popupContent.style.overflow = 'visible';
+                
+                // html2canvasでキャプチャ（スクロール範囲全体をキャプチャ）
                 const canvas = await html2canvas(popupContent, {
                     backgroundColor: null,
                     scale: 2,
                     logging: false,
                     useCORS: true,
-                    allowTaint: true
+                    allowTaint: true,
+                    scrollY: -window.scrollY,
+                    scrollX: -window.scrollX,
+                    windowWidth: popupContent.scrollWidth,
+                    windowHeight: popupContent.scrollHeight
                 });
                 
-                // ボタンを再表示
+                // スタイルを元に戻す
                 closeBtn.style.display = '';
                 actionsDiv.style.display = '';
+                popupContent.style.maxHeight = originalMaxHeight;
+                popupContent.style.overflow = originalOverflow;
                 
                 // canvasを画像に変換してダウンロード
                 canvas.toBlob((blob) => {
