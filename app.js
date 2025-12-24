@@ -357,13 +357,11 @@ function showSharePopup(dishes) {
         const dishItems = document.querySelectorAll('.gacha-dish-item h3');
         const dishNames = Array.from(dishItems).map(h3 => h3.textContent);
         
-        // ツイート文を生成
-        let tweetText = '今年のおせちはこれにしました\n';
-        dishNames.forEach(name => {
-            tweetText += name + '\n';
-        });
-        tweetText += '\n';
-        tweetText += shareUrl;
+        // ツイート文を生成（テンプレートリテラルで実際の改行を使用）
+        const tweetText = `今年のおせちはこれにしました
+${dishNames.join('\n')}
+
+${shareUrl}`;
         
         // Xの共有URLを生成
         const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
