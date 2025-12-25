@@ -73,7 +73,7 @@ addForm.addEventListener('submit', async (e) => {
     
     // 認証状態をチェック
     if (!currentUser) {
-        alert('読み込み中です。少々お待ちください。');
+        showAlert('読み込み中です。少々お待ちください。');
         return;
     }
     
@@ -81,18 +81,18 @@ addForm.addEventListener('submit', async (e) => {
     const dishOrigin = dishOriginInput.value.trim();
     
     if (!dishName || !dishOrigin) {
-        alert('料理名と由来を入力してください');
+        showAlert('料理名と由来を入力してください');
         return;
     }
     
     // 文字数チェック
     if (dishName.length > 15) {
-        alert('料理名は15文字以内で入力してください');
+        showAlert('料理名は15文字以内で入力してください');
         return;
     }
     
     if (dishOrigin.length > 30) {
-        alert('由来は30文字以内で入力してください');
+        showAlert('由来は30文字以内で入力してください');
         return;
     }
     
@@ -108,7 +108,7 @@ addForm.addEventListener('submit', async (e) => {
         // LocalStorageに自分の投稿IDを保存
         saveMyPost(docRef.id, dishName, dishOrigin);
         
-        alert('メニューに追加しました！');
+        showAlert('メニューに追加しました！');
         
         // フォームをリセット
         dishNameInput.value = '';
@@ -121,7 +121,7 @@ addForm.addEventListener('submit', async (e) => {
         
     } catch (error) {
         console.error('エラー:', error);
-        alert('追加に失敗しました。もう一度お試しください。');
+        showAlert('追加に失敗しました。もう一度お試しください。');
     }
 });
 
@@ -131,7 +131,7 @@ if (gachaBtn) {
     const count = parseInt(gachaCountInput.value);
     
     if (!count || count < 1 || count > 20) {
-        alert('1〜20の数字を入力してください');
+        showAlert('1〜20の数字を入力してください');
         return;
     }
     
@@ -808,9 +808,74 @@ async function reloadMyPosts() {
     }
 }
 
+// カスタム確認ダイアログ
+function showConfirmDialog(message) {
+    return new Promise((resolve) => {
+        const dialog = document.createElement('div');
+        dialog.className = 'confirm-dialog';
+        dialog.innerHTML = `
+            <div class="confirm-dialog-content">
+                <div class="confirm-dialog-message">${message}</div>
+                <div class="confirm-dialog-buttons">
+                    <button class="confirm-btn confirm-btn-yes" id="confirm-yes">削除</button>
+                    <button class="confirm-btn confirm-btn-no" id="confirm-no">キャンセル</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(dialog);
+        
+        const yesBtn = dialog.querySelector('#confirm-yes');
+        const noBtn = dialog.querySelector('#confirm-no');
+        
+        const cleanup = (result) => {
+            dialog.remove();
+            resolve(result);
+        };
+        
+        yesBtn.onclick = () => cleanup(true);
+        noBtn.onclick = () => cleanup(false);
+        dialog.onclick = (e) => {
+            if (e.target === dialog) cleanup(false);
+        };
+    });
+}
+
+// カスタムアラート
+function showAlert(message) {
+    return new Promise((resolve) => {
+        const dialog = document.createElement('div');
+        dialog.className = 'confirm-dialog';
+        dialog.innerHTML = `
+            <div class="confirm-dialog-content">
+                <div class="confirm-dialog-message">${message}</div>
+                <div class="confirm-dialog-buttons">
+                    <button class="confirm-btn confirm-btn-no" id="alert-ok">OK</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(dialog);
+        
+        const okBtn = dialog.querySelector('#alert-ok');
+        
+        const cleanup = () => {
+            dialog.remove();
+            resolve();
+        };
+        
+        okBtn.onclick = cleanup;
+        dialog.onclick = (e) => {
+            if (e.target === dialog) cleanup();
+        };
+    });
+}
+
 // 直接削除関数
 async function directDelete(id, name) {
-    if (!confirm(`「${name}」を削除しますか？`)) {
+    const confirmed = await showConfirmDialog(`「${name}」を削除しますか？`);
+    
+    if (!confirmed) {
         return;
     }
     
@@ -821,7 +886,7 @@ async function directDelete(id, name) {
         // LocalStorageからも削除
         removeMyPost(id);
         
-        alert('削除しました！');
+        await showAlert('削除しました！');
         
         // 表示を更新（過去投稿が開いている場合のみ）
         if (myPostsDiv && myPostsDiv.style.display !== 'none') {
@@ -830,7 +895,7 @@ async function directDelete(id, name) {
         
     } catch (error) {
         console.error('エラー:', error);
-        alert('削除に失敗しました。');
+        await showAlert('削除に失敗しました。');
     }
 }
 
