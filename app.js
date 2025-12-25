@@ -852,11 +852,24 @@ function displayMyDishes(container, dishes) {
     
     // 削除ボタンにイベントリスナーを追加
     container.querySelectorAll('.btn-delete').forEach(btn => {
-        btn.addEventListener('click', () => {
+        const handleDelete = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
             const id = btn.getAttribute('data-dish-id');
             const name = btn.getAttribute('data-dish-name');
             directDelete(id, name);
-        });
+        };
+        
+        // クリックイベント
+        btn.addEventListener('click', handleDelete, { passive: false });
+        
+        // タッチイベント（モバイル対応）
+        btn.addEventListener('touchstart', (e) => {
+            e.stopPropagation();
+        }, { passive: true });
+        
+        btn.addEventListener('touchend', handleDelete, { passive: false });
     });
 }
 

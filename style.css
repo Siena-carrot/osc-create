@@ -258,6 +258,8 @@ main {
     max-height: 500px;
     overflow-y: auto;
     transition: all 0.3s ease-in-out;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
 }
 
 .btn-delete {
@@ -268,13 +270,22 @@ main {
     color: white;
     border: none;
     border-radius: 5px;
-    padding: 5px 10px;
+    padding: 8px 15px;
     font-size: 0.85rem;
     cursor: pointer;
     transition: all 0.3s;
+    z-index: 100;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(0,0,0,0.1);
+    min-width: 50px;
+    min-height: 36px;
+    pointer-events: auto;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
-.btn-delete:hover {
+.btn-delete:hover,
+.btn-delete:active {
     background: var(--Red);
     transform: scale(1.05);
 }
@@ -296,6 +307,9 @@ main {
     animation: slideIn 0.3s forwards;
     opacity: 1;
     transform: translateX(0);
+    position: relative;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 .dish-item h3 {
