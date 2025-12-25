@@ -834,43 +834,28 @@ async function directDelete(id, name) {
     }
 }
 
+// 削除ボタンのクリックハンドラー（グローバル関数）
+window.handleDeleteClick = function(id, name) {
+    directDelete(id, name);
+};
+
 // 自分の投稿を表示するヘルパー関数
 function displayMyDishes(container, dishes) {
     let html = '';
     
     dishes.forEach((dish, index) => {
+        // IDと名前をエスケープ
+        const escapedName = dish.name.replace(/'/g, "\\'").replace(/"/g, '&quot;');
         html += `
             <div class="dish-item" style="animation-delay: ${index * 0.1}s; position: relative;">
                 <h3>${dish.name}</h3>
                 <p>${dish.origin}</p>
-                <button class="btn-delete" data-dish-id="${dish.id}" data-dish-name="${dish.name}">削除</button>
+                <button class="btn-delete" onclick="handleDeleteClick('${dish.id}', '${escapedName}'); return false;">削除</button>
             </div>
         `;
     });
     
     container.innerHTML = html;
-    
-    // 削除ボタンにイベントリスナーを追加
-    container.querySelectorAll('.btn-delete').forEach(btn => {
-        const handleDelete = (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            e.stopImmediatePropagation();
-            const id = btn.getAttribute('data-dish-id');
-            const name = btn.getAttribute('data-dish-name');
-            directDelete(id, name);
-        };
-        
-        // クリックイベント
-        btn.addEventListener('click', handleDelete, { passive: false });
-        
-        // タッチイベント（モバイル対応）
-        btn.addEventListener('touchstart', (e) => {
-            e.stopPropagation();
-        }, { passive: true });
-        
-        btn.addEventListener('touchend', handleDelete, { passive: false });
-    });
 }
 
 // 初期化メッセージ
