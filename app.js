@@ -347,7 +347,16 @@ function setupGachaActionButtons(dishes) {
                                 }
                             }
                         } else {
-                            alert('お使いのブラウザは画像の共有に対応していません');
+                            // Share APIが使えない場合は通常のダウンロード
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = `おせちガチャ_${new Date().getTime()}.png`;
+                            a.style.display = 'none';
+                            document.body.appendChild(a);
+                            a.click();
+                            document.body.removeChild(a);
+                            setTimeout(() => URL.revokeObjectURL(url), 100);
                         }
                     });
                 } else {
@@ -357,6 +366,7 @@ function setupGachaActionButtons(dishes) {
                         const a = document.createElement('a');
                         a.href = url;
                         a.download = `おせちガチャ_${new Date().getTime()}.png`;
+                        a.style.display = 'none';
                         document.body.appendChild(a);
                         a.click();
                         document.body.removeChild(a);
