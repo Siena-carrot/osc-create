@@ -330,20 +330,42 @@ function setupGachaActionButtons(dishes) {
                 if (isMobile) {
                     // モバイルの場合はShare APIを使用
                     canvas.toBlob(async (blob) => {
+                        if (!blob) {
+                            alert('画像の生成に失敗しました');
+                            return;
+                        }
+                        
                         const file = new File([blob], `おせちガチャ_${new Date().getTime()}.png`, { type: 'image/png' });
                         
                         // Share APIが使える場合
-                        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                        if (navigator.share) {
                             try {
-                                await navigator.share({
-                                    files: [file],
-                                    title: 'おせちガチャ',
-                                    text: '今年のおせち'
-                                });
+                                // canShareのチェックを簡略化（Androidで問題がある場合があるため）
+                                const canShareFiles = navigator.canShare ? navigator.canShare({ files: [file] }) : true;
+                                
+                                if (canShareFiles) {
+                                    await navigator.share({
+                                        files: [file],
+                                        title: 'おせちガチャ',
+                                        text: '今年のおせち'
+                                    });
+                                } else {
+                                    throw new Error('Share API does not support files');
+                                }
                             } catch (error) {
                                 if (error.name !== 'AbortError') {
                                     console.error('共有エラー:', error);
-                                    alert('画像の共有に失敗しました');
+                                    // Share APIが使えない場合は通常のダウンロードにフォールバック
+                                    const url = URL.createObjectURL(blob);
+                                    const a = document.createElement('a');
+                                    a.href = url;
+                                    a.download = `おせちガチャ_${new Date().getTime()}.png`;
+                                    a.style.display = 'none';
+                                    document.body.appendChild(a);
+                                    a.click();
+                                    document.body.removeChild(a);
+                                    setTimeout(() => URL.revokeObjectURL(url), 100);
+                                    alert('画像をダウンロードしました');
                                 }
                             }
                         } else {
@@ -358,7 +380,7 @@ function setupGachaActionButtons(dishes) {
                             document.body.removeChild(a);
                             setTimeout(() => URL.revokeObjectURL(url), 100);
                         }
-                    });
+                    }, 'image/png');
                 } else {
                     // PCの場合は従来通りダウンロード
                     canvas.toBlob((blob) => {
@@ -558,18 +580,31 @@ ${shareUrl}`;
             if (isMobile) {
                 // モバイルの場合はShare APIを使用
                 canvas.toBlob(async (blob) => {
+                    if (!blob) {
+                        alert('画像の生成に失敗しました');
+                        popup.remove();
+                        return;
+                    }
+                    
                     const file = new File([blob], `おせちガチャ_${new Date().getTime()}.png`, { type: 'image/png' });
                     
                     // Share APIが使える場合
-                    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                    if (navigator.share) {
                         try {
-                            await navigator.share({
-                                files: [file],
-                                title: 'おせちガチャ',
-                                text: '今年のおせち'
-                            });
-                            // 共有成功後、共有ポップアップを閉じる
-                            popup.remove();
+                            // canShareのチェックを簡略化（Androidで問題がある場合があるため）
+                            const canShareFiles = navigator.canShare ? navigator.canShare({ files: [file] }) : true;
+                            
+                            if (canShareFiles) {
+                                await navigator.share({
+                                    files: [file],
+                                    title: 'おせちガチャ',
+                                    text: '今年のおせち'
+                                });
+                                // 共有成功後、共有ポップアップを閉じる
+                                popup.remove();
+                            } else {
+                                throw new Error('Share API does not support files');
+                            }
                         } catch (error) {
                             if (error.name === 'AbortError') {
                                 // ユーザーがキャンセルした場合も共有ポップアップを閉じる
@@ -584,7 +619,7 @@ ${shareUrl}`;
                         alert('お使いのブラウザは画像の共有に対応していません');
                         popup.remove();
                     }
-                });
+                }, 'image/png');
             } else {
                 // PCの場合は従来通りダウンロード
                 canvas.toBlob((blob) => {
