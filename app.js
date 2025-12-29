@@ -232,7 +232,7 @@ function displayDishes(container, dishes, title, isSharedView = false) {
             </div>
             ${!isSharedView ? `
             <div class="gacha-actions">
-                <button class="action-btn action-btn-red" id="save-image-btn">画像として保存</button>
+                <button class="action-btn action-btn-red" id="save-image-btn">画像を生成（長押しで保存）</button>
                 <button class="action-btn" id="share-btn">共有</button>
                 <button class="action-btn action-btn-gray" id="close-gacha-btn">とじる</button>
             </div>` : `
@@ -291,6 +291,14 @@ function setupGachaActionButtons(dishes) {
             if (!popupContent) return;
             
             try {
+                // 既に画像が表示されている場合は非表示にする
+                const existingImagePreview = document.getElementById('image-preview-container');
+                if (existingImagePreview) {
+                    existingImagePreview.remove();
+                    saveImageBtn.textContent = '画像を生成（長押しで保存）';
+                    return;
+                }
+                
                 // 閉じるボタンとアクションボタンを一時的に非表示
                 const closeBtn = document.getElementById('close-result-popup');
                 const actionsDiv = document.querySelector('.gacha-actions');
@@ -303,6 +311,9 @@ function setupGachaActionButtons(dishes) {
                 // スクロールコンテナの制限を一時的に解除
                 popupContent.style.maxHeight = 'none';
                 popupContent.style.overflow = 'visible';
+                
+                saveImageBtn.textContent = '画像を生成中...';
+                saveImageBtn.disabled = true;
                 
                 // html2canvasでキャプチャ（スクロール範囲全体をキャプチャ）
                 const canvas = await html2canvas(popupContent, {
@@ -323,81 +334,69 @@ function setupGachaActionButtons(dishes) {
                 popupContent.style.maxHeight = originalMaxHeight;
                 popupContent.style.overflow = originalOverflow;
                 
-                // canvasを画像に変換してダウンロード
+                // canvasを画像URLに変換
+                const imageUrl = canvas.toDataURL('image/png');
+                
                 // モバイルデバイスの判定
                 const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
                 
                 if (isMobile) {
-                    // モバイルの場合はShare APIを使用
-                    canvas.toBlob(async (blob) => {
-                        if (!blob) {
-                            alert('画像の生成に失敗しました');
-                            return;
-                        }
-                        
-                        const file = new File([blob], `おせちガチャ_${new Date().getTime()}.png`, { type: 'image/png' });
-                        
-                        // Share APIが使える場合
-                        if (navigator.share) {
-                            try {
-                                // canShareのチェックを簡略化（Androidで問題がある場合があるため）
-                                const canShareFiles = navigator.canShare ? navigator.canShare({ files: [file] }) : true;
-                                
-                                if (canShareFiles) {
-                                    await navigator.share({
-                                        files: [file],
-                                        title: 'おせちガチャ',
-                                        text: '今年のおせち'
-                                    });
-                                } else {
-                                    throw new Error('Share API does not support files');
-                                }
-                            } catch (error) {
-                                if (error.name !== 'AbortError') {
-                                    console.error('共有エラー:', error);
-                                    // Share APIが使えない場合は通常のダウンロードにフォールバック
-                                    const url = URL.createObjectURL(blob);
-                                    const a = document.createElement('a');
-                                    a.href = url;
-                                    a.download = `おせちガチャ_${new Date().getTime()}.png`;
-                                    a.style.display = 'none';
-                                    document.body.appendChild(a);
-                                    a.click();
-                                    document.body.removeChild(a);
-                                    setTimeout(() => URL.revokeObjectURL(url), 100);
-                                    alert('画像をダウンロードしました');
-                                }
-                            }
-                        } else {
-                            // Share APIが使えない場合は通常のダウンロード
-                            const url = URL.createObjectURL(blob);
-                            const a = document.createElement('a');
-                            a.href = url;
-                            a.download = `おせちガチャ_${new Date().getTime()}.png`;
-                            a.style.display = 'none';
-                            document.body.appendChild(a);
-                            a.click();
-                            document.body.removeChild(a);
-                            setTimeout(() => URL.revokeObjectURL(url), 100);
-                        }
-                    }, 'image/png');
+                    // モバイルの場合：画像を表示して長押しで保存できるようにする
+                    const imagePreviewContainer = document.createElement('div');
+                    imagePreviewContainer.id = 'image-preview-container';
+                    imagePreviewContainer.style.cssText = `
+                        margin: 20px 0;
+                        padding: 15px;
+                        background: #f5f5f5;
+                        border-radius: 8px;
+                        text-align: center;
+                    `;
+                    
+                    const instruction = document.createElement('p');
+                    instruction.textContent = '画像を長押しして保存してください';
+                    instruction.style.cssText = `
+                        margin: 0 0 10px 0;
+                        color: #CD4C39;
+                        font-weight: bold;
+                        font-size: 0.9em;
+                    `;
+                    
+                    const img = document.createElement('img');
+                    img.src = imageUrl;
+                    img.alt = 'おせちガチャ結果';
+                    img.style.cssText = `
+                        max-width: 100%;
+                        height: auto;
+                        border-radius: 4px;
+                        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                    `;
+                    
+                    imagePreviewContainer.appendChild(instruction);
+                    imagePreviewContainer.appendChild(img);
+                    
+                    // アクションボタンの直前に挿入
+                    actionsDiv.parentNode.insertBefore(imagePreviewContainer, actionsDiv);
+                    
+                    saveImageBtn.textContent = '画像を非表示';
+                    saveImageBtn.disabled = false;
                 } else {
-                    // PCの場合は従来通りダウンロード
-                    canvas.toBlob((blob) => {
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = `おせちガチャ_${new Date().getTime()}.png`;
-                        a.style.display = 'none';
-                        document.body.appendChild(a);
-                        a.click();
-                        document.body.removeChild(a);
-                        setTimeout(() => URL.revokeObjectURL(url), 100);
-                    });
+                    // PCの場合：従来通りダウンロード
+                    const a = document.createElement('a');
+                    a.href = imageUrl;
+                    a.download = `おせちガチャ_${new Date().getTime()}.png`;
+                    a.style.display = 'none';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    
+                    saveImageBtn.textContent = '画像を生成（長押しで保存）';
+                    saveImageBtn.disabled = false;
                 }
             } catch (error) {
                 console.error('画像保存エラー:', error);
-                alert('画像の保存に失敗しました');
+                alert('画像の生成に失敗しました');
+                saveImageBtn.textContent = '画像を生成（長押しで保存）';
+                saveImageBtn.disabled = false;
             }
         });
     }
@@ -438,7 +437,7 @@ function showSharePopup(dishes) {
             <p class="share-note">ぜひ画像で保存して添付してね</p>
             <button class="share-option-btn share-option-btn-red" id="share-x">Twitterで共有</button>
             <button class="share-option-btn" id="share-copy-link">リンクをコピー</button>
-            <button class="share-option-btn" id="share-save-image">画像として保存</button>
+            <button class="share-option-btn" id="share-direct">画像を直接共有</button>
             <button class="close-popup-btn" id="close-share-popup">とじる</button>
         </div>
     `;
@@ -536,7 +535,7 @@ ${shareUrl}`;
         }
     });
     
-    document.getElementById('share-save-image').addEventListener('click', async () => {
+    document.getElementById('share-direct').addEventListener('click', async () => {
         const popupContent = document.querySelector('.gacha-result-popup-content');
         if (!popupContent) return;
         
@@ -573,69 +572,46 @@ ${shareUrl}`;
             popupContent.style.maxHeight = originalMaxHeight;
             popupContent.style.overflow = originalOverflow;
             
-            // canvasを画像に変換してダウンロード
-            // モバイルデバイスの判定
-            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-            
-            if (isMobile) {
-                // モバイルの場合はShare APIを使用
-                canvas.toBlob(async (blob) => {
-                    if (!blob) {
-                        alert('画像の生成に失敗しました');
-                        popup.remove();
-                        return;
-                    }
-                    
-                    const file = new File([blob], `おせちガチャ_${new Date().getTime()}.png`, { type: 'image/png' });
-                    
-                    // Share APIが使える場合
-                    if (navigator.share) {
-                        try {
-                            // canShareのチェックを簡略化（Androidで問題がある場合があるため）
-                            const canShareFiles = navigator.canShare ? navigator.canShare({ files: [file] }) : true;
-                            
-                            if (canShareFiles) {
-                                await navigator.share({
-                                    files: [file],
-                                    title: 'おせちガチャ',
-                                    text: '今年のおせち'
-                                });
-                                // 共有成功後、共有ポップアップを閉じる
-                                popup.remove();
-                            } else {
-                                throw new Error('Share API does not support files');
-                            }
-                        } catch (error) {
-                            if (error.name === 'AbortError') {
-                                // ユーザーがキャンセルした場合も共有ポップアップを閉じる
-                                popup.remove();
-                            } else {
-                                console.error('共有エラー:', error);
-                                alert('画像の共有に失敗しました');
-                                popup.remove();
-                            }
+            // canvasをblobに変換してShare API経由で共有
+            canvas.toBlob(async (blob) => {
+                if (!blob) {
+                    alert('画像の生成に失敗しました');
+                    return;
+                }
+                
+                const file = new File([blob], `おせちガチャ_${new Date().getTime()}.png`, { type: 'image/png' });
+                
+                // Share APIが使える場合
+                if (navigator.share) {
+                    try {
+                        const canShareFiles = navigator.canShare ? navigator.canShare({ files: [file] }) : true;
+                        
+                        if (canShareFiles) {
+                            await navigator.share({
+                                files: [file],
+                                title: 'おせちガチャ',
+                                text: '今年のおせち'
+                            });
+                            popup.remove();
+                        } else {
+                            throw new Error('Share API does not support files');
                         }
-                    } else {
-                        alert('お使いのブラウザは画像の共有に対応していません');
-                        popup.remove();
+                    } catch (error) {
+                        if (error.name === 'AbortError') {
+                            // ユーザーがキャンセルした場合
+                            popup.remove();
+                        } else {
+                            console.error('共有エラー:', error);
+                            alert('画像の共有に失敗しました。お使いのブラウザでは対応していない可能性があります。');
+                        }
                     }
-                }, 'image/png');
-            } else {
-                // PCの場合は従来通りダウンロード
-                canvas.toBlob((blob) => {
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `おせちガチャ_${new Date().getTime()}.png`;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    setTimeout(() => URL.revokeObjectURL(url), 100);
-                });
-            }
+                } else {
+                    alert('お使いのブラウザは画像の共有に対応していません');
+                }
+            }, 'image/png');
         } catch (error) {
-            console.error('画像保存エラー:', error);
-            alert('画像の保存に失敗しました');
+            console.error('画像生成エラー:', error);
+            alert('画像の生成に失敗しました');
         }
     });
     
