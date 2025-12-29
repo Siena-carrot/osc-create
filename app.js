@@ -409,6 +409,7 @@ function setupGachaActionButtons(dishes) {
     
     if (copyLinkBtn) {
         copyLinkBtn.addEventListener('click', async () => {
+            alert('リンクコピー開始');
             try {
                 // URL生成開始
                 const finalShareUrl = await generateShareUrl(dishes);
@@ -417,6 +418,8 @@ function setupGachaActionButtons(dishes) {
                     alert('URL生成に失敗しました');
                     return;
                 }
+                
+                alert('URL生成完了');
                 
                 // テキストエリアを使った確実なコピー方法
                 const textarea = document.createElement('textarea');
@@ -458,10 +461,13 @@ function setupGachaActionButtons(dishes) {
                 alert('エラーが発生しました: ' + (error.message || error));
             }
         });
+    } else {
+        alert('copyLinkBtnが見つかりません');
     }
     
     if (twitterShareBtn) {
         twitterShareBtn.addEventListener('click', async () => {
+            alert('Twitter共有開始');
             try {
                 // 共有URLを生成
                 const finalShareUrl = await generateShareUrl(dishes);
@@ -470,6 +476,8 @@ function setupGachaActionButtons(dishes) {
                     alert('URL生成に失敗しました');
                     return;
                 }
+                
+                alert('URL生成完了');
                 
                 // 現在表示されている料理名を取得
                 const dishItems = document.querySelectorAll('.gacha-dish-item h3');
@@ -501,16 +509,14 @@ ${finalShareUrl}`;
                 const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
                 
                 // 新しいウィンドウで開く
-                const opened = window.open(twitterUrl, '_blank', 'width=550,height=420');
-                
-                if (!opened || opened.closed || typeof opened.closed == 'undefined') {
-                    alert('ポップアップがブロックされました。ブラウザの設定を確認してください。');
-                }
+                window.open(twitterUrl, '_blank', 'width=550,height=420');
             } catch (error) {
                 console.error('Twitter共有エラー:', error);
                 alert('エラーが発生しました: ' + (error.message || error));
             }
         });
+    } else {
+        alert('twitterShareBtnが見つかりません');
     }
     
     const closeGachaBtn = document.getElementById('close-gacha-btn');
