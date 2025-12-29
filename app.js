@@ -429,40 +429,134 @@ function setupGachaActionButtons(dishes) {
                     return;
                 }
                 
-                // テキストエリアを使った確実なコピー方法
-                const textarea = document.createElement('textarea');
-                textarea.value = finalShareUrl;
-                textarea.style.position = 'fixed';
-                textarea.style.top = '0';
-                textarea.style.left = '0';
-                textarea.style.opacity = '0';
-                document.body.appendChild(textarea);
-                textarea.focus();
-                textarea.select();
+                // モバイルデバイスまたはTwitter内ブラウザかを判定
+                const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+                const isTwitterInApp = /Twitter/i.test(navigator.userAgent);
                 
-                let success = false;
-                try {
-                    success = document.execCommand('copy');
-                    console.log('execCommand result:', success);
-                } catch (err) {
-                    console.error('execCommand error:', err);
-                }
-                
-                document.body.removeChild(textarea);
-                
-                if (success) {
-                    alert('リンクをコピーしました');
-                } else {
-                    // フォールバック: Clipboard API
-                    try {
-                        if (navigator.clipboard && navigator.clipboard.writeText) {
-                            await navigator.clipboard.writeText(finalShareUrl);
-                            alert('リンクをコピーしました');
-                        } else {
-                            alert('コピー機能が利用できません。URL: ' + finalShareUrl);
+                // Twitter内ブラウザまたはモバイルの場合：URLを表示して手動コピーを促す
+                if (isTwitterInApp || isMobile) {
+                    // URLを選択可能な形で表示
+                    const urlDisplay = document.createElement('div');
+                    urlDisplay.id = 'url-display-box';
+                    urlDisplay.style.cssText = `
+                        margin: 15px 0;
+                        padding: 15px;
+                        background: #f5f5f5;
+                        border: 2px solid #CD4C39;
+                        border-radius: 8px;
+                        word-break: break-all;
+                        position: relative;
+                    `;
+                    
+                    const instruction = document.createElement('p');
+                    instruction.textContent = 'URLをコピーしてください';
+                    instruction.style.cssText = `
+                        margin: 0 0 10px 0;
+                        color: #CD4C39;
+                        font-weight: bold;
+                        font-size: 0.9em;
+                        text-align: center;
+                    `;
+                    
+                    const urlText = document.createElement('input');
+                    urlText.type = 'text';
+                    urlText.value = finalShareUrl;
+                    urlText.readOnly = true;
+                    urlText.style.cssText = `
+                        width: 100%;
+                        padding: 10px;
+                        border: 1px solid #ddd;
+                        border-radius: 4px;
+                        font-size: 14px;
+                        box-sizing: border-box;
+                        text-align: center;
+                    `;
+                    
+                    // タップで全選択
+                    urlText.addEventListener('click', function() {
+                        this.select();
+                        this.setSelectionRange(0, 99999); // モバイル用
+                        
+                        // 一応コピーも試みる
+                        try {
+                            document.execCommand('copy');
+                            const feedback = document.createElement('div');
+                            feedback.textContent = 'コピーしました！';
+                            feedback.style.cssText = `
+                                position: absolute;
+                                top: -30px;
+                                left: 50%;
+                                transform: translateX(-50%);
+                                background: #4CAF50;
+                                color: white;
+                                padding: 5px 15px;
+                                border-radius: 4px;
+                                font-size: 12px;
+                                white-space: nowrap;
+                            `;
+                            urlDisplay.style.position = 'relative';
+                            urlDisplay.appendChild(feedback);
+                            setTimeout(() => feedback.remove(), 2000);
+                        } catch (err) {
+                            console.log('自動コピー失敗（通常の動作）');
                         }
-                    } catch (clipErr) {
-                        alert('コピーに失敗しました。URL: ' + finalShareUrl);
+                    });
+                    
+                    urlDisplay.appendChild(instruction);
+                    urlDisplay.appendChild(urlText);
+                    
+                    // 既存の表示があれば削除
+                    const existingDisplay = document.getElementById('url-display-box');
+                    if (existingDisplay) {
+                        existingDisplay.remove();
+                    }
+                    
+                    // アクションボタンの前に挿入
+                    const actionsDiv = document.querySelector('.gacha-actions');
+                    actionsDiv.parentNode.insertBefore(urlDisplay, actionsDiv);
+                    
+                    // 入力欄を自動選択
+                    setTimeout(() => {
+                        urlText.focus();
+                        urlText.select();
+                    }, 100);
+                    
+                } else {
+                    // PC環境：従来のコピー方法
+                    const textarea = document.createElement('textarea');
+                    textarea.value = finalShareUrl;
+                    textarea.style.position = 'fixed';
+                    textarea.style.top = '0';
+                    textarea.style.left = '0';
+                    textarea.style.opacity = '0';
+                    document.body.appendChild(textarea);
+                    textarea.focus();
+                    textarea.select();
+                    
+                    let success = false;
+                    try {
+                        success = document.execCommand('copy');
+                        console.log('execCommand result:', success);
+                    } catch (err) {
+                        console.error('execCommand error:', err);
+                    }
+                    
+                    document.body.removeChild(textarea);
+                    
+                    if (success) {
+                        alert('リンクをコピーしました');
+                    } else {
+                        // フォールバック: Clipboard API
+                        try {
+                            if (navigator.clipboard && navigator.clipboard.writeText) {
+                                await navigator.clipboard.writeText(finalShareUrl);
+                                alert('リンクをコピーしました');
+                            } else {
+                                alert('コピー機能が利用できません。URL: ' + finalShareUrl);
+                            }
+                        } catch (clipErr) {
+                            alert('コピーに失敗しました。URL: ' + finalShareUrl);
+                        }
                     }
                 }
             } catch (error) {
@@ -515,10 +609,27 @@ ${finalShareUrl}`;
                 
                 // Xの共有URLを生成
                 const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
-                console.log('Twitter URL生成完了');
+                console.log('Twitter URL生成完了:', twitterUrl);
                 
-                // 新しいウィンドウで開く
-                window.open(twitterUrl, '_blank', 'width=550,height=420');
+                // Twitter内ブラウザの場合は location.href を使用
+                const isTwitterInApp = /Twitter/i.test(navigator.userAgent);
+                
+                if (isTwitterInApp) {
+                    // Twitter内ブラウザではlocation.hrefで遷移
+                    console.log('Twitter内ブラウザを検出 - location.hrefで遷移');
+                    window.location.href = twitterUrl;
+                } else {
+                    // 通常のブラウザでは新規ウィンドウ
+                    const opened = window.open(twitterUrl, '_blank', 'width=550,height=420');
+                    
+                    // ポップアップがブロックされた場合の対処
+                    if (!opened || opened.closed || typeof opened.closed == 'undefined') {
+                        console.log('ポップアップがブロックされました - location.hrefで遷移');
+                        if (confirm('ポップアップがブロックされました。Twitterの投稿ページに移動しますか？')) {
+                            window.location.href = twitterUrl;
+                        }
+                    }
+                }
             } catch (error) {
                 console.error('Twitter共有エラー:', error);
                 alert('エラー: ' + (error.message || error));
