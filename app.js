@@ -410,7 +410,9 @@ function setupGachaActionButtons(dishes) {
     if (copyLinkBtn) {
         copyLinkBtn.addEventListener('click', async () => {
             try {
+                console.log('リンクコピー開始');
                 const finalShareUrl = await generateShareUrl(dishes);
+                console.log('共有URL生成完了:', finalShareUrl);
                 
                 // Clipboard APIが使えるか確認
                 if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -424,28 +426,35 @@ function setupGachaActionButtons(dishes) {
                     textarea.style.opacity = '0';
                     document.body.appendChild(textarea);
                     textarea.select();
-                    document.execCommand('copy');
+                    const success = document.execCommand('copy');
                     document.body.removeChild(textarea);
-                    alert('リンクをコピーしました');
+                    if (success) {
+                        alert('リンクをコピーしました');
+                    } else {
+                        throw new Error('execCommand failed');
+                    }
                 }
             } catch (error) {
                 console.error('コピーエラー:', error);
-                alert('リンクのコピーに失敗しました');
+                alert('リンクのコピーに失敗しました: ' + error.message);
             }
         });
     }
     
     if (twitterShareBtn) {
         twitterShareBtn.addEventListener('click', async () => {
-            // 共有URLを生成
-            const finalShareUrl = await generateShareUrl(dishes);
-            
-            // 現在表示されている料理名を取得
-            const dishItems = document.querySelectorAll('.gacha-dish-item h3');
-            const dishNames = Array.from(dishItems).map(h3 => h3.textContent);
-            
-            // ツイート文を生成（テンプレートリテラルで実際の改行を使用）
-            let tweetText = `／
+            try {
+                console.log('Twitter共有開始');
+                // 共有URLを生成
+                const finalShareUrl = await generateShareUrl(dishes);
+                console.log('共有URL生成完了:', finalShareUrl);
+                
+                // 現在表示されている料理名を取得
+                const dishItems = document.querySelectorAll('.gacha-dish-item h3');
+                const dishNames = Array.from(dishItems).map(h3 => h3.textContent);
+                
+                // ツイート文を生成（テンプレートリテラルで実際の改行を使用）
+                let tweetText = `／
 今年のおせちはこれにします！
 ＼
 
@@ -453,24 +462,29 @@ ${dishNames.join('\n')}
 
 #おせちガチャ
 ${finalShareUrl}`;
-            
-            // Twitterの文字数制限をチェック（URLは23文字としてカウント）
-            const urlLength = 23;
-            const textWithoutUrl = tweetText.replace(finalShareUrl, '');
-            const totalLength = textWithoutUrl.length + urlLength;
-            
-            // 280文字を超える場合は調整
-            if (totalLength > 280) {
-                const maxLength = 280 - urlLength - 2; // URLと「……」の分を引く
-                const truncatedText = textWithoutUrl.substring(0, maxLength);
-                tweetText = truncatedText + '……\n' + finalShareUrl;
+                
+                // Twitterの文字数制限をチェック（URLは23文字としてカウント）
+                const urlLength = 23;
+                const textWithoutUrl = tweetText.replace(finalShareUrl, '');
+                const totalLength = textWithoutUrl.length + urlLength;
+                
+                // 280文字を超える場合は調整
+                if (totalLength > 280) {
+                    const maxLength = 280 - urlLength - 2; // URLと「……」の分を引く
+                    const truncatedText = textWithoutUrl.substring(0, maxLength);
+                    tweetText = truncatedText + '……\n' + finalShareUrl;
+                }
+                
+                // Xの共有URLを生成
+                const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
+                console.log('Twitter URL:', twitterUrl);
+                
+                // 新しいウィンドウで開く
+                window.open(twitterUrl, '_blank', 'width=550,height=420');
+            } catch (error) {
+                console.error('Twitter共有エラー:', error);
+                alert('Twitter共有に失敗しました: ' + error.message);
             }
-            
-            // Xの共有URLを生成
-            const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
-            
-            // 新しいウィンドウで開く
-            window.open(twitterUrl, '_blank', 'width=550,height=420');
         });
     }
     
