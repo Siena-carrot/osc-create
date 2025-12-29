@@ -231,9 +231,11 @@ function displayDishes(container, dishes, title, isSharedView = false) {
     html += `
             </div>
             ${!isSharedView ? `
-            <div class="gacha-actions">
-                <button class="action-btn action-btn-red" id="save-image-btn">画像を生成（長押しで保存）</button>
-                <button class="action-btn" id="share-btn">共有</button>
+            <p class="share-note" style="margin: 20px 0 10px 0; font-size: 0.85em; color: #666; text-align: center;">ぜひ画像を保存して共有してね</p>
+            <div class="gacha-actions" style="display: flex; flex-direction: column; gap: 10px;">
+                <button class="action-btn action-btn-red" id="save-image-btn">画像として保存</button>
+                <button class="action-btn" id="copy-link-btn">リンクをコピー</button>
+                <button class="action-btn" id="twitter-share-btn">Twitterで共有</button>
                 <button class="action-btn action-btn-gray" id="close-gacha-btn">とじる</button>
             </div>` : `
             <div class="gacha-actions">
@@ -283,7 +285,8 @@ function displayDishes(container, dishes, title, isSharedView = false) {
 // ガチャアクションボタンのイベントリスナー
 function setupGachaActionButtons(dishes) {
     const saveImageBtn = document.getElementById('save-image-btn');
-    const shareBtn = document.getElementById('share-btn');
+    const copyLinkBtn = document.getElementById('copy-link-btn');
+    const twitterShareBtn = document.getElementById('twitter-share-btn');
     
     if (saveImageBtn) {
         saveImageBtn.addEventListener('click', async () => {
@@ -295,7 +298,7 @@ function setupGachaActionButtons(dishes) {
                 const existingImagePreview = document.getElementById('image-preview-container');
                 if (existingImagePreview) {
                     existingImagePreview.remove();
-                    saveImageBtn.textContent = '画像を生成（長押しで保存）';
+                    saveImageBtn.textContent = '画像として保存';
                     return;
                 }
                 
@@ -401,9 +404,74 @@ function setupGachaActionButtons(dishes) {
         });
     }
     
-    if (shareBtn) {
-        shareBtn.addEventListener('click', () => {
-            showSharePopup(dishes);
+    if (copyLinkBtn) {
+        copyLinkBtn.addEventListener('click', async () => {
+            try {
+                const shareUrl = await generateShareUrl(dishes);
+                
+                // Clipboard APIが使えるか確認
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    await navigator.clipboard.writeText(shareUrl);
+                    alert('リンクをコピーしました');
+                } else {
+                    // フォールバック: テキストエリアを使用
+                    const textarea = document.createElement('textarea');
+                    textarea.value = shareUrl;
+                    textarea.style.position = 'fixed';
+                    textarea.style.opacity = '0';
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textarea);
+                    alert('リンクをコピーしました');
+                }
+            } catch (error) {
+                console.error('コピーエラー:', error);
+                alert('リンクのコピーに失敗しました');
+            }
+        });
+    }
+    
+    if (twitterShareBtn) {
+        twitterShareBtn.addEventListener('click', async () => {
+            try {
+                const shareUrl = await generateShareUrl(dishes);
+                
+                // 現在表示されている料理名を取得
+                const dishItems = document.querySelectorAll('.gacha-dish-item h3');
+                const dishNames = Array.from(dishItems).map(h3 => h3.textContent);
+                
+                // ツイート文を生成
+                let tweetText = `／
+今年のおせちはこれにします！
+＼
+
+${dishNames.join('\n')}
+
+#おせちガチャ
+${shareUrl}`;
+                
+                // Twitterの文字数制限をチェック（URLは23文字としてカウント）
+                const urlLength = 23;
+                const textWithoutUrl = tweetText.replace(shareUrl, '');
+                const totalLength = textWithoutUrl.length + urlLength;
+                
+                // 280文字を超える場合は調整
+                if (totalLength > 280) {
+                    const maxLength = 280 - urlLength - 2;
+                    const truncatedText = textWithoutUrl.substring(0, maxLength);
+                    tweetText = truncatedText + '……\n' + shareUrl;
+                }
+                
+                // Xの共有URLを生成
+                const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
+                
+                // 新しいウィンドウで開く
+                window.open(twitterUrl, '_blank');
+            } catch (error) {
+                console.error('Twitter共有エラー:', error);
+                alert('Twitter共有に失敗しました');
+            }
         });
     }
     
@@ -418,213 +486,6 @@ function setupGachaActionButtons(dishes) {
             gachaResult.innerHTML = '';
         });
     }
-}
-
-// 共有ポップアップを表示
-function showSharePopup(dishes) {
-    // ポップアップが既に存在する場合は削除
-    const existingPopup = document.getElementById('share-popup');
-    if (existingPopup) {
-        existingPopup.remove();
-    }
-    
-    const popup = document.createElement('div');
-    popup.id = 'share-popup';
-    popup.className = 'share-popup';
-    popup.innerHTML = `
-        <div class="share-popup-content">
-            <h3>共有</h3>
-            <p class="share-note">ぜひ画像で保存して添付してね</p>
-            <button class="share-option-btn share-option-btn-red" id="share-x">Twitterで共有</button>
-            <button class="share-option-btn" id="share-copy-link">リンクをコピー</button>
-            <button class="share-option-btn" id="share-direct">画像を直接共有</button>
-            <button class="close-popup-btn" id="close-share-popup">とじる</button>
-        </div>
-    `;
-    
-    document.body.appendChild(popup);
-    
-    // 共有URLを生成（非同期）
-    let shareUrl = '';
-    generateShareUrl(dishes).then(url => {
-        shareUrl = url;
-    });
-    
-    // ポップアップ内のボタンにイベントリスナーを追加
-    document.getElementById('share-x').addEventListener('click', () => {
-        // 共有URLが生成されていなければ待機
-        if (!shareUrl) {
-            alert('共有URLを生成中です。少々お待ちください。');
-            return;
-        }
-        
-        // 現在表示されている料理名を取得
-        const dishItems = document.querySelectorAll('.gacha-dish-item h3');
-        const dishNames = Array.from(dishItems).map(h3 => h3.textContent);
-        
-        // ツイート文を生成（テンプレートリテラルで実際の改行を使用）
-        let tweetText = `／
-今年のおせちはこれにします！
-＼
-
-${dishNames.join('\n')}
-
-#おせちガチャ
-${shareUrl}`;
-        
-        // Twitterの文字数制限をチェック（URLは23文字としてカウント）
-        const urlLength = 23;
-        const textWithoutUrl = tweetText.replace(shareUrl, '');
-        const totalLength = textWithoutUrl.length + urlLength;
-        
-        // 280文字を超える場合は調整
-        if (totalLength > 280) {
-            const maxLength = 280 - urlLength - 2; // URLと「……」の分を引く
-            const truncatedText = textWithoutUrl.substring(0, maxLength);
-            tweetText = truncatedText + '……\n' + shareUrl;
-        }
-        
-        // Xの共有URLを生成
-        const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
-        
-        // 新しいウィンドウで開く（同期処理なのでブロックされない）
-        window.open(twitterUrl, '_blank');
-        
-        // ポップアップを閉じる
-        popup.remove();
-    });
-    
-    document.getElementById('share-copy-link').addEventListener('click', async () => {
-        try {
-            const finalShareUrl = await generateShareUrl(dishes);
-            
-            // Clipboard APIが使えるか確認
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                await navigator.clipboard.writeText(finalShareUrl);
-                alert('リンクをコピーしました');
-            } else {
-                // フォールバック: テキストエリアを使用
-                const textarea = document.createElement('textarea');
-                textarea.value = finalShareUrl;
-                textarea.style.position = 'fixed';
-                textarea.style.opacity = '0';
-                document.body.appendChild(textarea);
-                textarea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textarea);
-                alert('リンクをコピーしました');
-            }
-        } catch (error) {
-            console.error('コピーエラー:', error);
-            // エラー時もフォールバックを試す
-            try {
-                const finalShareUrl = await generateShareUrl(dishes);
-                const textarea = document.createElement('textarea');
-                textarea.value = finalShareUrl;
-                textarea.style.position = 'fixed';
-                textarea.style.opacity = '0';
-                document.body.appendChild(textarea);
-                textarea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textarea);
-                alert('リンクをコピーしました');
-            } catch (fallbackError) {
-                console.error('フォールバックコピーエラー:', fallbackError);
-                alert('リンクのコピーに失敗しました');
-            }
-        }
-    });
-    
-    document.getElementById('share-direct').addEventListener('click', async () => {
-        const popupContent = document.querySelector('.gacha-result-popup-content');
-        if (!popupContent) return;
-        
-        try {
-            // 閉じるボタンとアクションボタンを一時的に非表示
-            const closeBtn = document.getElementById('close-result-popup');
-            const actionsDiv = document.querySelector('.gacha-actions');
-            const originalMaxHeight = popupContent.style.maxHeight;
-            const originalOverflow = popupContent.style.overflow;
-            
-            closeBtn.style.display = 'none';
-            actionsDiv.style.display = 'none';
-            
-            // スクロールコンテナの制限を一時的に解除
-            popupContent.style.maxHeight = 'none';
-            popupContent.style.overflow = 'visible';
-            
-            // html2canvasでキャプチャ
-            const canvas = await html2canvas(popupContent, {
-                backgroundColor: null,
-                scale: 2,
-                logging: false,
-                useCORS: true,
-                allowTaint: true,
-                scrollY: -window.scrollY,
-                scrollX: -window.scrollX,
-                windowWidth: popupContent.scrollWidth,
-                windowHeight: popupContent.scrollHeight
-            });
-            
-            // スタイルを元に戻す
-            closeBtn.style.display = '';
-            actionsDiv.style.display = '';
-            popupContent.style.maxHeight = originalMaxHeight;
-            popupContent.style.overflow = originalOverflow;
-            
-            // canvasをblobに変換してShare API経由で共有
-            canvas.toBlob(async (blob) => {
-                if (!blob) {
-                    alert('画像の生成に失敗しました');
-                    return;
-                }
-                
-                const file = new File([blob], `おせちガチャ_${new Date().getTime()}.png`, { type: 'image/png' });
-                
-                // Share APIが使える場合
-                if (navigator.share) {
-                    try {
-                        const canShareFiles = navigator.canShare ? navigator.canShare({ files: [file] }) : true;
-                        
-                        if (canShareFiles) {
-                            await navigator.share({
-                                files: [file],
-                                title: 'おせちガチャ',
-                                text: '今年のおせち'
-                            });
-                            popup.remove();
-                        } else {
-                            throw new Error('Share API does not support files');
-                        }
-                    } catch (error) {
-                        if (error.name === 'AbortError') {
-                            // ユーザーがキャンセルした場合
-                            popup.remove();
-                        } else {
-                            console.error('共有エラー:', error);
-                            alert('画像の共有に失敗しました。お使いのブラウザでは対応していない可能性があります。');
-                        }
-                    }
-                } else {
-                    alert('お使いのブラウザは画像の共有に対応していません');
-                }
-            }, 'image/png');
-        } catch (error) {
-            console.error('画像生成エラー:', error);
-            alert('画像の生成に失敗しました');
-        }
-    });
-    
-    document.getElementById('close-share-popup').addEventListener('click', () => {
-        popup.remove();
-    });
-    
-    // 背景クリックで閉じる
-    popup.addEventListener('click', (e) => {
-        if (e.target === popup) {
-            popup.remove();
-        }
-    });
 }
 
 // 共有URLを生成
