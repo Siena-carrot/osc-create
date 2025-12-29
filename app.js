@@ -231,7 +231,7 @@ function displayDishes(container, dishes, title, isSharedView = false) {
     html += `
             </div>
             ${!isSharedView ? `
-            <p class="share-note" style="margin: 20px 0 10px 0; font-size: 0.85em; color: #666; text-align: center;">ぜひ画像を保存して共有してね</p>
+            <p class="share-note-text" style="margin: 20px 0 10px 0; font-size: 0.85em; color: #666; text-align: center;">ぜひ画像を保存して共有してね</p>
             <div class="gacha-actions" style="display: flex; flex-direction: column; gap: 10px;">
                 <button class="action-btn action-btn-red" id="save-image-btn">画像として保存</button>
                 <button class="action-btn" id="copy-link-btn">リンクをコピー</button>
@@ -302,14 +302,16 @@ function setupGachaActionButtons(dishes) {
                     return;
                 }
                 
-                // 閉じるボタンとアクションボタンを一時的に非表示
+                // 閉じるボタンとアクションボタン、注釈テキストを一時的に非表示
                 const closeBtn = document.getElementById('close-result-popup');
                 const actionsDiv = document.querySelector('.gacha-actions');
+                const shareNoteText = document.querySelector('.share-note-text');
                 const originalMaxHeight = popupContent.style.maxHeight;
                 const originalOverflow = popupContent.style.overflow;
                 
                 closeBtn.style.display = 'none';
                 actionsDiv.style.display = 'none';
+                if (shareNoteText) shareNoteText.style.display = 'none';
                 
                 // スクロールコンテナの制限を一時的に解除
                 popupContent.style.maxHeight = 'none';
@@ -334,6 +336,7 @@ function setupGachaActionButtons(dishes) {
                 // スタイルを元に戻す
                 closeBtn.style.display = '';
                 actionsDiv.style.display = '';
+                if (shareNoteText) shareNoteText.style.display = '';
                 popupContent.style.maxHeight = originalMaxHeight;
                 popupContent.style.overflow = originalOverflow;
                 
