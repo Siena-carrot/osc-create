@@ -284,9 +284,15 @@ function displayDishes(container, dishes, title, isSharedView = false) {
 
 // ガチャアクションボタンのイベントリスナー
 function setupGachaActionButtons(dishes) {
+    // ボタン要素を取得
     const saveImageBtn = document.getElementById('save-image-btn');
     const copyLinkBtn = document.getElementById('copy-link-btn');
     const twitterShareBtn = document.getElementById('twitter-share-btn');
+    
+    console.log('setupGachaActionButtons called');
+    console.log('saveImageBtn:', saveImageBtn);
+    console.log('copyLinkBtn:', copyLinkBtn);
+    console.log('twitterShareBtn:', twitterShareBtn);
     
     if (saveImageBtn) {
         saveImageBtn.addEventListener('click', async () => {
@@ -409,17 +415,13 @@ function setupGachaActionButtons(dishes) {
     
     if (copyLinkBtn) {
         copyLinkBtn.addEventListener('click', async () => {
-            alert('リンクコピー開始');
             try {
-                // URL生成開始
                 const finalShareUrl = await generateShareUrl(dishes);
                 
                 if (!finalShareUrl) {
                     alert('URL生成に失敗しました');
                     return;
                 }
-                
-                alert('URL生成完了');
                 
                 // テキストエリアを使った確実なコピー方法
                 const textarea = document.createElement('textarea');
@@ -461,23 +463,17 @@ function setupGachaActionButtons(dishes) {
                 alert('エラーが発生しました: ' + (error.message || error));
             }
         });
-    } else {
-        alert('copyLinkBtnが見つかりません');
     }
     
     if (twitterShareBtn) {
         twitterShareBtn.addEventListener('click', async () => {
-            alert('Twitter共有開始');
             try {
-                // 共有URLを生成
                 const finalShareUrl = await generateShareUrl(dishes);
                 
                 if (!finalShareUrl) {
                     alert('URL生成に失敗しました');
                     return;
                 }
-                
-                alert('URL生成完了');
                 
                 // 現在表示されている料理名を取得
                 const dishItems = document.querySelectorAll('.gacha-dish-item h3');
@@ -500,7 +496,7 @@ ${finalShareUrl}`;
                 
                 // 280文字を超える場合は調整
                 if (totalLength > 280) {
-                    const maxLength = 280 - urlLength - 2; // URLと「……」の分を引く
+                    const maxLength = 280 - urlLength - 2;
                     const truncatedText = textWithoutUrl.substring(0, maxLength);
                     tweetText = truncatedText + '……\n' + finalShareUrl;
                 }
@@ -512,11 +508,9 @@ ${finalShareUrl}`;
                 window.open(twitterUrl, '_blank', 'width=550,height=420');
             } catch (error) {
                 console.error('Twitter共有エラー:', error);
-                alert('エラーが発生しました: ' + (error.message || error));
+                alert('エラー: ' + (error.message || error));
             }
         });
-    } else {
-        alert('twitterShareBtnが見つかりません');
     }
     
     const closeGachaBtn = document.getElementById('close-gacha-btn');
