@@ -409,21 +409,40 @@ function setupGachaActionButtons(dishes) {
             try {
                 const shareUrl = await generateShareUrl(dishes);
                 
-                // Clipboard APIが使えるか確認
-                if (navigator.clipboard && navigator.clipboard.writeText) {
-                    await navigator.clipboard.writeText(shareUrl);
-                    alert('リンクをコピーしました');
-                } else {
-                    // フォールバック: テキストエリアを使用
-                    const textarea = document.createElement('textarea');
-                    textarea.value = shareUrl;
-                    textarea.style.position = 'fixed';
-                    textarea.style.opacity = '0';
-                    document.body.appendChild(textarea);
-                    textarea.select();
-                    document.execCommand('copy');
+                // フォールバック方式を優先（Twitter内ブラウザ対応）
+                const textarea = document.createElement('textarea');
+                textarea.value = shareUrl;
+                textarea.style.position = 'fixed';
+                textarea.style.top = '0';
+                textarea.style.left = '0';
+                textarea.style.width = '2em';
+                textarea.style.height = '2em';
+                textarea.style.padding = '0';
+                textarea.style.border = 'none';
+                textarea.style.outline = 'none';
+                textarea.style.boxShadow = 'none';
+                textarea.style.background = 'transparent';
+                document.body.appendChild(textarea);
+                textarea.focus();
+                textarea.select();
+                
+                try {
+                    const successful = document.execCommand('copy');
                     document.body.removeChild(textarea);
-                    alert('リンクをコピーしました');
+                    if (successful) {
+                        alert('リンクをコピーしました');
+                    } else {
+                        throw new Error('Copy command failed');
+                    }
+                } catch (err) {
+                    document.body.removeChild(textarea);
+                    // Clipboard APIを試す
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        await navigator.clipboard.writeText(shareUrl);
+                        alert('リンクをコピーしました');
+                    } else {
+                        throw err;
+                    }
                 }
             } catch (error) {
                 console.error('コピーエラー:', error);
@@ -434,12 +453,15 @@ function setupGachaActionButtons(dishes) {
     
     if (twitterShareBtn) {
         twitterShareBtn.addEventListener('click', async () => {
+            // 現在表示されている料理名を取得
+            const dishItems = document.querySelectorAll('.gacha-dish-item h3');
+            const dishNames = Array.from(dishItems).map(h3 => h3.textContent);
+            
             try {
-                const shareUrl = await generateShareUrl(dishes);
+                // Twitter内ブラウザ対応：window.openを先に実行してから非同期処理
+                const newWindow = window.open('about:blank', '_blank');
                 
-                // 現在表示されている料理名を取得
-                const dishItems = document.querySelectorAll('.gacha-dish-item h3');
-                const dishNames = Array.from(dishItems).map(h3 => h3.textContent);
+                const shareUrl = await generateShareUrl(dishes);
                 
                 // ツイート文を生成
                 let tweetText = `／
@@ -466,8 +488,13 @@ ${shareUrl}`;
                 // Xの共有URLを生成
                 const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
                 
-                // 新しいウィンドウで開く
-                window.open(twitterUrl, '_blank');
+                // 既に開いたウィンドウにURLを設定
+                if (newWindow) {
+                    newWindow.location.href = twitterUrl;
+                } else {
+                    // ポップアップがブロックされた場合は直接location.hrefで開く
+                    window.location.href = twitterUrl;
+                }
             } catch (error) {
                 console.error('Twitter共有エラー:', error);
                 alert('Twitter共有に失敗しました');
