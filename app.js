@@ -410,33 +410,52 @@ function setupGachaActionButtons(dishes) {
     if (copyLinkBtn) {
         copyLinkBtn.addEventListener('click', async () => {
             try {
-                console.log('リンクコピー開始');
+                // URL生成開始
                 const finalShareUrl = await generateShareUrl(dishes);
-                console.log('共有URL生成完了:', finalShareUrl);
                 
-                // Clipboard APIが使えるか確認
-                if (navigator.clipboard && navigator.clipboard.writeText) {
-                    await navigator.clipboard.writeText(finalShareUrl);
+                if (!finalShareUrl) {
+                    alert('URL生成に失敗しました');
+                    return;
+                }
+                
+                // テキストエリアを使った確実なコピー方法
+                const textarea = document.createElement('textarea');
+                textarea.value = finalShareUrl;
+                textarea.style.position = 'fixed';
+                textarea.style.top = '0';
+                textarea.style.left = '0';
+                textarea.style.opacity = '0';
+                document.body.appendChild(textarea);
+                textarea.focus();
+                textarea.select();
+                
+                let success = false;
+                try {
+                    success = document.execCommand('copy');
+                } catch (err) {
+                    console.error('execCommand error:', err);
+                }
+                
+                document.body.removeChild(textarea);
+                
+                if (success) {
                     alert('リンクをコピーしました');
                 } else {
-                    // フォールバック: テキストエリアを使用
-                    const textarea = document.createElement('textarea');
-                    textarea.value = finalShareUrl;
-                    textarea.style.position = 'fixed';
-                    textarea.style.opacity = '0';
-                    document.body.appendChild(textarea);
-                    textarea.select();
-                    const success = document.execCommand('copy');
-                    document.body.removeChild(textarea);
-                    if (success) {
-                        alert('リンクをコピーしました');
-                    } else {
-                        throw new Error('execCommand failed');
+                    // フォールバック: Clipboard API
+                    try {
+                        if (navigator.clipboard && navigator.clipboard.writeText) {
+                            await navigator.clipboard.writeText(finalShareUrl);
+                            alert('リンクをコピーしました');
+                        } else {
+                            alert('コピー機能が利用できません。URL: ' + finalShareUrl);
+                        }
+                    } catch (clipErr) {
+                        alert('コピーに失敗しました。URL: ' + finalShareUrl);
                     }
                 }
             } catch (error) {
                 console.error('コピーエラー:', error);
-                alert('リンクのコピーに失敗しました: ' + error.message);
+                alert('エラーが発生しました: ' + (error.message || error));
             }
         });
     }
@@ -444,10 +463,13 @@ function setupGachaActionButtons(dishes) {
     if (twitterShareBtn) {
         twitterShareBtn.addEventListener('click', async () => {
             try {
-                console.log('Twitter共有開始');
                 // 共有URLを生成
                 const finalShareUrl = await generateShareUrl(dishes);
-                console.log('共有URL生成完了:', finalShareUrl);
+                
+                if (!finalShareUrl) {
+                    alert('URL生成に失敗しました');
+                    return;
+                }
                 
                 // 現在表示されている料理名を取得
                 const dishItems = document.querySelectorAll('.gacha-dish-item h3');
@@ -477,13 +499,16 @@ ${finalShareUrl}`;
                 
                 // Xの共有URLを生成
                 const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
-                console.log('Twitter URL:', twitterUrl);
                 
                 // 新しいウィンドウで開く
-                window.open(twitterUrl, '_blank', 'width=550,height=420');
+                const opened = window.open(twitterUrl, '_blank', 'width=550,height=420');
+                
+                if (!opened || opened.closed || typeof opened.closed == 'undefined') {
+                    alert('ポップアップがブロックされました。ブラウザの設定を確認してください。');
+                }
             } catch (error) {
                 console.error('Twitter共有エラー:', error);
-                alert('Twitter共有に失敗しました: ' + error.message);
+                alert('エラーが発生しました: ' + (error.message || error));
             }
         });
     }
