@@ -163,6 +163,7 @@ if (gachaBtn) {
         // 結果を表示
         displayDishes(gachaResult, selectedDishes, '今年のおせち');
         gachaResult.classList.add('show');
+        console.log('ガチャ結果を表示しました');
         
     } catch (error) {
         console.error('エラー:', error);
@@ -263,7 +264,9 @@ function displayDishes(container, dishes, title, isSharedView = false) {
         });
         
         // ボタンのイベントリスナーを設定
+        console.log('setupGachaActionButtonsを呼び出します');
         setupGachaActionButtons(dishes);
+        console.log('setupGachaActionButtons呼び出し完了');
     } else {
         // 共有ビューの場合は背景クリックで閉じる
         popup.addEventListener('click', (e) => {
@@ -415,8 +418,11 @@ function setupGachaActionButtons(dishes) {
     
     if (copyLinkBtn) {
         copyLinkBtn.addEventListener('click', async () => {
+            console.log('リンクコピーボタンがクリックされました');
             try {
+                console.log('URL生成開始...');
                 const finalShareUrl = await generateShareUrl(dishes);
+                console.log('生成されたURL:', finalShareUrl);
                 
                 if (!finalShareUrl) {
                     alert('URL生成に失敗しました');
@@ -437,6 +443,7 @@ function setupGachaActionButtons(dishes) {
                 let success = false;
                 try {
                     success = document.execCommand('copy');
+                    console.log('execCommand result:', success);
                 } catch (err) {
                     console.error('execCommand error:', err);
                 }
@@ -463,12 +470,17 @@ function setupGachaActionButtons(dishes) {
                 alert('エラーが発生しました: ' + (error.message || error));
             }
         });
+    } else {
+        console.warn('copyLinkBtnが見つかりませんでした');
     }
     
     if (twitterShareBtn) {
         twitterShareBtn.addEventListener('click', async () => {
+            console.log('Twitter共有ボタンがクリックされました');
             try {
+                console.log('URL生成開始...');
                 const finalShareUrl = await generateShareUrl(dishes);
+                console.log('生成されたURL:', finalShareUrl);
                 
                 if (!finalShareUrl) {
                     alert('URL生成に失敗しました');
@@ -503,6 +515,7 @@ ${finalShareUrl}`;
                 
                 // Xの共有URLを生成
                 const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
+                console.log('Twitter URL生成完了');
                 
                 // 新しいウィンドウで開く
                 window.open(twitterUrl, '_blank', 'width=550,height=420');
@@ -511,6 +524,8 @@ ${finalShareUrl}`;
                 alert('エラー: ' + (error.message || error));
             }
         });
+    } else {
+        console.warn('twitterShareBtnが見つかりませんでした');
     }
     
     const closeGachaBtn = document.getElementById('close-gacha-btn');
